@@ -54,7 +54,7 @@ Estimación bayesiana de tasas hospitalarias con shrinkage — los hospitales co
 :::
 
 ::: {.project-card}
-#### ¿Cuánto tiempo hasta el evento?
+#### [¿Cuánto tiempo hasta el evento?](proyectos/supervivencia-cox.qmd)
 
 Dashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.
 
@@ -73,9 +73,9 @@ Dashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos propor
 :::
 
 ::: {.project-card}
-#### ML Predictor
+#### [ML Predictor](proyectos/predictor-ml.qmd)
 
-Comparación de modelos de clasificación (random forest, SVM) para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.
+Comparación de modelos de clasificación para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.
 
 ::: {.project-tags}
 [R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [Machine Learning]{.tag .tag-ml}

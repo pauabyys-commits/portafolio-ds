@@ -13,5 +13,11 @@
   },
   "proyectos.qmd": {
     "proyectos.html": "f61e3f22"
+  },
+  "proyectos/predictor-ml.qmd": {
+    "predictor-ml.html": "2596b17f"
+  },
+  "proyectos/supervivencia-cox.qmd": {
+    "supervivencia-cox.html": "adb43487"
   }
 }

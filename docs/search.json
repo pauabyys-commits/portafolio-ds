@@ -4,7 +4,35 @@
     "href": "proyectos.html",
     "title": "Proyectos",
     "section": "",
-    "text": "Proyectos\n\n\nTodos\n\n\nBayesiana\n\n\nSupervivencia\n\n\nMachine Learning\n\n\n\n\nIncertidumbre visible\nEstimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.\n\nR Shiny Bayesiana\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\n¿Cuánto tiempo hasta el evento?\nDashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nML Predictor\nComparación de modelos de clasificación (random forest, SVM) para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.\n\nR Shiny Machine Learning\n\n\n2026\n\n\nAbrir app ↗ Código"
+    "text": "Proyectos\n\n\nTodos\n\n\nBayesiana\n\n\nSupervivencia\n\n\nMachine Learning\n\n\n\n\nIncertidumbre visible\nEstimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.\n\nR Shiny Bayesiana\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\n¿Cuánto tiempo hasta el evento?\nDashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nML Predictor\nComparación de modelos de clasificación para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.\n\nR Shiny Machine Learning\n\n\n2026\n\n\nAbrir app ↗ Código"
+  },
+  {
+    "objectID": "proyectos/predictor-ml.html",
+    "href": "proyectos/predictor-ml.html",
+    "title": "ML Predictor",
+    "section": "",
+    "text": "← Volver a proyectos\n\n\n\nMachine Learning · 2026\n\n\nAbrir app ↗ Ver código ↗\n\n\n\nExisten distintos modelos de clasificación, no hay un “mejor modelo” universal, depende de qué error importa más evitar (falsos positivos vs. falsos negativos) y de la estructura de los datos. Comparar modelos lado a lado, con las mismas métricas, es la única forma honesta de decidir cuál usar.\n\n\n\nApp tipo formulario paso a paso que entrena y compara varios modelos de clasificación, vía caret, para predecir diagnóstico de enfermedad cardíaca. Incluye curva ROC, importancia de variables por modelo, y una tabla de métricas de desempeño (AUC, exactitud, sensibilidad, especificidad, F1) para comparar directamente.\n\n\n\n\nR Shiny caret randomForest SVM"
+  },
+  {
+    "objectID": "proyectos/predictor-ml.html#el-problema",
+    "href": "proyectos/predictor-ml.html#el-problema",
+    "title": "ML Predictor",
+    "section": "",
+    "text": "Existen distintos modelos de clasificación, no hay un “mejor modelo” universal, depende de qué error importa más evitar (falsos positivos vs. falsos negativos) y de la estructura de los datos. Comparar modelos lado a lado, con las mismas métricas, es la única forma honesta de decidir cuál usar."
+  },
+  {
+    "objectID": "proyectos/predictor-ml.html#método",
+    "href": "proyectos/predictor-ml.html#método",
+    "title": "ML Predictor",
+    "section": "",
+    "text": "App tipo formulario paso a paso que entrena y compara varios modelos de clasificación, vía caret, para predecir diagnóstico de enfermedad cardíaca. Incluye curva ROC, importancia de variables por modelo, y una tabla de métricas de desempeño (AUC, exactitud, sensibilidad, especificidad, F1) para comparar directamente."
+  },
+  {
+    "objectID": "proyectos/predictor-ml.html#herramientas",
+    "href": "proyectos/predictor-ml.html#herramientas",
+    "title": "ML Predictor",
+    "section": "",
+    "text": "R Shiny caret randomForest SVM"
   },
   {
     "objectID": "index.html",
@@ -18,7 +46,7 @@
     "href": "index.html#proyectos",
     "title": "Estadística y machine learning",
     "section": "Proyectos",
-    "text": "Proyectos\n\n\nIncertidumbre visible\nEstimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.\n\nR Shiny Bayesiana\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\n¿Cuánto tiempo hasta el evento?\nDashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nML Predictor\nComparación de modelos de clasificación (random forest, SVM) para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.\n\nR Shiny Machine Learning\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nVer todos los proyectos →"
+    "text": "Proyectos\n\n\nIncertidumbre visible\nEstimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.\n\nR Shiny Bayesiana\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\n¿Cuánto tiempo hasta el evento?\nDashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nML Predictor\nComparación de modelos de clasificación para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.\n\nR Shiny Machine Learning\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nVer todos los proyectos →"
   },
   {
     "objectID": "blog.html",
@@ -61,5 +89,33 @@
     "title": "Incertidumbre visible",
     "section": "",
     "text": "R Shiny bslib ggplot2 dplyr"
+  },
+  {
+    "objectID": "proyectos/supervivencia-cox.html",
+    "href": "proyectos/supervivencia-cox.html",
+    "title": "¿Cuánto tiempo hasta el evento?",
+    "section": "",
+    "text": "← Volver a proyectos\n\n\n\nSupervivencia · 2026\n\n\nAbrir app ↗ Ver código ↗\n\n\n\nEn estudios clínicos, no todos los pacientes “viven el evento” durante el tiempo de seguimiento, algunos siguen vivos cuando termina el estudio, otros se pierden de vista. Ignorar esto (o tratarlo como si el evento nunca fuera a pasar) sesga cualquier análisis. El análisis de supervivencia existe justamente para modelar el tiempo hasta que algo pasa, incluso cuando ese “algo” todavía no pasó para varios pacientes, esto se llama censura.\n\n\n\nCurvas de Kaplan-Meier para estimar la probabilidad de supervivencia a lo largo del tiempo sin asumir ninguna distribución específica, y un modelo de riesgos proporcionales de Cox para cuantificar cómo distintas variables (edad, sexo, estado funcional ECOG) afectan el riesgo del evento.\nLos datos son del dataset público lung (paquete survival), con pacientes de cáncer de pulmón avanzado. Una decisión de limpieza relevante: las categorías 2 y 3 del estado funcional ECOG se agruparon, ya que por separado tenían muy pocos pacientes para estimar su efecto de forma confiable.\n\n\n\n\nR Shiny survival survminer gt"
+  },
+  {
+    "objectID": "proyectos/supervivencia-cox.html#el-problema",
+    "href": "proyectos/supervivencia-cox.html#el-problema",
+    "title": "¿Cuánto tiempo hasta el evento?",
+    "section": "",
+    "text": "En estudios clínicos, no todos los pacientes “viven el evento” durante el tiempo de seguimiento, algunos siguen vivos cuando termina el estudio, otros se pierden de vista. Ignorar esto (o tratarlo como si el evento nunca fuera a pasar) sesga cualquier análisis. El análisis de supervivencia existe justamente para modelar el tiempo hasta que algo pasa, incluso cuando ese “algo” todavía no pasó para varios pacientes, esto se llama censura."
+  },
+  {
+    "objectID": "proyectos/supervivencia-cox.html#método",
+    "href": "proyectos/supervivencia-cox.html#método",
+    "title": "¿Cuánto tiempo hasta el evento?",
+    "section": "",
+    "text": "Curvas de Kaplan-Meier para estimar la probabilidad de supervivencia a lo largo del tiempo sin asumir ninguna distribución específica, y un modelo de riesgos proporcionales de Cox para cuantificar cómo distintas variables (edad, sexo, estado funcional ECOG) afectan el riesgo del evento.\nLos datos son del dataset público lung (paquete survival), con pacientes de cáncer de pulmón avanzado. Una decisión de limpieza relevante: las categorías 2 y 3 del estado funcional ECOG se agruparon, ya que por separado tenían muy pocos pacientes para estimar su efecto de forma confiable."
+  },
+  {
+    "objectID": "proyectos/supervivencia-cox.html#herramientas",
+    "href": "proyectos/supervivencia-cox.html#herramientas",
+    "title": "¿Cuánto tiempo hasta el evento?",
+    "section": "",
+    "text": "R Shiny survival survminer gt"
   }
 ]

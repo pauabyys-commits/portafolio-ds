@@ -1,0 +1,36 @@
+---
+pagetitle: "¿Cuánto tiempo hasta el evento?"
+---
+
+::: {.project-detail}
+
+[← Volver a proyectos](../proyectos.qmd){.back-link}
+
+# ¿Cuánto tiempo hasta el evento?
+
+::: {.project-detail-meta}
+[Supervivencia]{.tag .tag-surv} · 2026
+:::
+
+::: {.project-detail-actions}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/supervivencia-cox/){.btn-primary target="_blank"}
+[Ver código ↗](https://github.com/pauabyys-commits/supervivencia-cox){.btn-secondary target="_blank"}
+:::
+
+## El problema
+
+En estudios clínicos, no todos los pacientes "viven el evento" durante el tiempo de seguimiento, algunos siguen vivos cuando termina el estudio, otros se pierden de vista. Ignorar esto (o tratarlo como si el evento nunca fuera a pasar) sesga cualquier análisis. El análisis de supervivencia existe justamente para modelar el *tiempo hasta que algo pasa*, incluso cuando ese "algo" todavía no pasó para varios pacientes, esto se llama censura.
+
+## Método
+
+Curvas de **Kaplan-Meier** para estimar la probabilidad de supervivencia a lo largo del tiempo sin asumir ninguna distribución específica, y un modelo de **riesgos proporcionales de Cox** para cuantificar cómo distintas variables (edad, sexo, estado funcional ECOG) afectan el riesgo del evento.
+
+Los datos son del dataset público `lung` (paquete `survival`), con pacientes de cáncer de pulmón avanzado. Una decisión de limpieza relevante: las categorías 2 y 3 del estado funcional ECOG se agruparon, ya que por separado tenían muy pocos pacientes para estimar su efecto de forma confiable.
+
+## Herramientas
+
+::: {.project-tags}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [survival]{.tag .tag-r} [survminer]{.tag .tag-r} [gt]{.tag .tag-r}
+:::
+
+:::
