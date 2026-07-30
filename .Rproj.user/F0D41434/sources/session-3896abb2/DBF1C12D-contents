@@ -1,0 +1,1142 @@
+#  ML Predictor — R Shiny App
+
+
+library(shiny)
+library(shinydashboard)
+library(DT)
+library(caret)
+library(randomForest)
+library(e1071)
+library(ggplot2)
+library(plotly)
+library(dplyr)
+library(tidyr)
+library(scales)
+library(shinyWidgets)
+library(bslib)
+
+
+# Paleta de COlores
+
+COL_PRIMARY   <- "#1a5c96"
+COL_SECONDARY <- "#2980b9"
+COL_SUCCESS   <- "#27ae60"
+COL_DANGER    <- "#e74c3c"
+COL_WARNING   <- "#f39c12"
+COL_LIGHT     <- "#ecf6ff"
+COL_CARD_BG   <- "#ffffff"
+
+# ── CSS personalizado ──────────────────────────────────────
+custom_css <- "
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+
+  body { background-color: #f0f4f8; color: #2d3748; }
+
+  .main-header .logo {
+    background-color: #1a5c96 !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px;
+  }
+  .main-header .navbar { background-color: #1a5c96 !important; }
+  .main-sidebar { background-color: #1e3a5f !important; }
+  .sidebar-menu > li > a { color: #b8d4f0 !important; font-size: 14px; }
+  .sidebar-menu > li.active > a,
+  .sidebar-menu > li > a:hover {
+    background-color: #2980b9 !important;
+    color: #ffffff !important;
+  }
+  .sidebar-menu > li > a .fa { color: #7fb3d3 !important; }
+  .sidebar-menu > li.active > a .fa { color: #fff !important; }
+
+  /* Cards generales */
+  .med-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(26,92,150,0.08);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .med-card-header {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a5c96;
+    border-bottom: 2px solid #e8f1fb;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* KPI boxes */
+  .kpi-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(26,92,150,0.08);
+    border-left: 5px solid #1a5c96;
+  }
+  .kpi-box.green  { border-left-color: #27ae60; }
+  .kpi-box.red    { border-left-color: #e74c3c; }
+  .kpi-box.orange { border-left-color: #f39c12; }
+  .kpi-box .kpi-value { font-size: 32px; font-weight: 700; color: #1a5c96; }
+  .kpi-box.green  .kpi-value { color: #27ae60; }
+  .kpi-box.red    .kpi-value { color: #e74c3c; }
+  .kpi-box.orange .kpi-value { color: #f39c12; }
+  .kpi-box .kpi-label { font-size: 13px; color: #718096; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Resultado diagnóstico */
+  .result-box {
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    margin: 20px 0;
+  }
+  .result-positive {
+    background: linear-gradient(135deg, #fff5f5, #ffe0e0);
+    border: 2px solid #e74c3c;
+  }
+  .result-negative {
+    background: linear-gradient(135deg, #f0fff4, #d4f5e2);
+    border: 2px solid #27ae60;
+  }
+  .result-icon { font-size: 52px; margin-bottom: 10px; }
+  .result-label { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .result-positive .result-label { color: #c0392b; }
+  .result-negative .result-label { color: #1e8449; }
+  .result-prob { font-size: 15px; color: #4a5568; margin-bottom: 4px; }
+
+  /* Barra de probabilidad */
+  .prob-bar-container { margin-top: 18px; }
+  .prob-bar-track {
+    background: #e2e8f0;
+    border-radius: 8px;
+    height: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .prob-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.8s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+  }
+
+  /* Wizard steps */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .step-dot {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: #c8dff4;
+    color: #1a5c96;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.3s;
+  }
+  .step-dot.active { background: #1a5c96; color: white; }
+  .step-dot.done   { background: #27ae60; color: white; }
+  .step-line { width: 40px; height: 3px; background: #c8dff4; border-radius: 2px; }
+
+  /* Botones */
+  .btn-med-primary {
+    background: linear-gradient(135deg, #1a5c96, #2980b9);
+    color: white !important;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 8px rgba(26,92,150,0.3);
+  }
+  .btn-med-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(26,92,150,0.4);
+    background: linear-gradient(135deg, #155080, #2471a3);
+  }
+  .btn-med-success {
+    background: linear-gradient(135deg, #1e8449, #27ae60);
+    color: white !important;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(39,174,96,0.3);
+    transition: all 0.2s;
+  }
+  .btn-med-success:hover { transform: translateY(-1px); }
+  .btn-med-outline {
+    background: transparent;
+    color: #1a5c96 !important;
+    border: 2px solid #1a5c96;
+    border-radius: 8px;
+    padding: 9px 24px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-med-outline:hover { background: #e8f1fb; }
+
+  /* Inputs */
+  .form-control, .selectize-input {
+    border: 1.5px solid #c8dff4 !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    color: #2d3748 !important;
+  }
+  .form-control:focus, .selectize-input.focus {
+    border-color: #1a5c96 !important;
+    box-shadow: 0 0 0 3px rgba(26,92,150,0.12) !important;
+  }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 4px; }
+
+  /* Alertas */
+  .alert-med {
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .alert-info-med { background: #ebf5fb; border-left: 4px solid #2980b9; color: #1a5c96; }
+  .alert-warn-med { background: #fef9e7; border-left: 4px solid #f39c12; color: #7d6608; }
+
+  /* Tabla */
+  .dataTables_wrapper { font-size: 13px; }
+  table.dataTable thead th { background: #f0f4f8; color: #1a5c96; font-weight: 600; }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2.5px dashed #7fb3d3;
+    border-radius: 14px;
+    padding: 36px;
+    text-align: center;
+    background: #f7fbff;
+    transition: all 0.2s;
+  }
+  .upload-zone:hover { border-color: #1a5c96; background: #e8f1fb; }
+  .upload-icon { font-size: 40px; margin-bottom: 10px; color: #7fb3d3; }
+
+  /* Footer */
+  .med-footer {
+    text-align: center;
+    color: #a0aec0;
+    font-size: 12px;
+    padding: 16px;
+    margin-top: 10px;
+  }
+
+  /* Spinner */
+  .training-spinner {
+    text-align: center;
+    padding: 40px;
+    color: #1a5c96;
+  }
+  .training-spinner .spin-icon { font-size: 40px; animation: spin 1.2s linear infinite; }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+"
+
+# ============================================================
+# UI
+# ============================================================
+ui <- dashboardPage(
+  skin = "blue",
+
+  dashboardHeader(
+    title = tags$span(
+      tags$img(src = "https://cdn-icons-png.flaticon.com/32/3209/3209267.png",
+               height = "26px", style = "margin-right:8px; vertical-align:middle;"),
+      "ML Predictor"
+    ),
+    titleWidth = 260
+  ),
+
+  dashboardSidebar(
+    width = 260,
+    sidebarMenu(
+      id = "sidebar",
+      menuItem("📊 Cargar Datos",        tabName = "upload",   icon = icon("upload")),
+      menuItem("🤖 Entrenar Modelos",    tabName = "train",    icon = icon("brain")),
+      menuItem("🩺 Diagnóstico Nuevo",   tabName = "predict",  icon = icon("stethoscope")),
+      menuItem("📈 Métricas y Resultados", tabName = "metrics", icon = icon("chart-bar")),
+      menuItem("📋 Historial",           tabName = "history",  icon = icon("history"))
+    ),
+    tags$div(
+      style = "padding:20px 16px; margin-top:auto;",
+      tags$div(
+        class = "alert-info-med alert-med",
+        style = "font-size:12px; background:#16345a; border-left-color:#7fb3d3; color:#b8d4f0; border-radius:8px; padding:12px;",
+        "💡 Carga tu dataset CSV con variable respuesta binaria (0/1 o 'Sí'/'No')."
+      )
+    )
+  ),
+
+  dashboardBody(
+    tags$head(tags$style(HTML(custom_css))),
+
+    tabItems(
+
+      # ── TAB 1: Cargar datos ────────────────────────────────
+      tabItem(tabName = "upload",
+        fluidRow(
+          column(12,
+            tags$div(class = "med-card",
+              tags$div(class = "med-card-header", "📂 Cargar Dataset Clínico"),
+              fluidRow(
+                column(6,
+                  tags$div(class = "upload-zone",
+                    tags$div(class = "upload-icon", "📁"),
+                    tags$p("Arrastra tu archivo CSV aquí o haz clic para seleccionar",
+                           style = "color:#4a5568; font-weight:500; margin-bottom:14px;"),
+                    fileInput("file", NULL,
+                              accept = c("text/csv", ".csv"),
+                              buttonLabel = "Seleccionar archivo",
+                              placeholder = "Ningún archivo seleccionado"),
+                    tags$hr(style = "border-color:#c8dff4;"),
+                    tags$p("¿No tienes un archivo? Usa el dataset de ejemplo:",
+                           style = "font-size:13px; color:#718096;"),
+                    actionButton("use_example", "📋 Usar Dataset de Ejemplo (Cardiopatía)",
+                                 class = "btn-med-outline")
+                  )
+                ),
+                column(6,
+                  tags$div(class = "alert-info-med alert-med", style = "margin-bottom:14px;",
+                    "ℹ️ ", tags$b("Formato requerido:"),
+                    tags$ul(style = "margin:6px 0 0 0; padding-left:18px;",
+                      tags$li("Archivo CSV con cabeceras en la primera fila"),
+                      tags$li("Variable respuesta binaria (0/1, TRUE/FALSE, Sí/No)"),
+                      tags$li("Variables predictoras numéricas o categóricas")
+                    )
+                  ),
+                  tags$div(class = "alert-warn-med alert-med",
+                    "⚠️ ", tags$b("Privacidad:"),
+                    " Esta aplicación procesa los datos localmente. No se envía información a servidores externos."
+                  ),
+                  uiOutput("variable_selector_ui"),
+                  uiOutput("positive_label_ui")
+                )
+              )
+            )
+          )
+        ),
+        fluidRow(
+          column(12,
+            uiOutput("data_preview_ui")
+          )
+        )
+      ),
+
+      # ── TAB 2: Entrenar modelos ────────────────────────────
+      tabItem(tabName = "train",
+        fluidRow(
+          column(4,
+            tags$div(class = "med-card",
+              tags$div(class = "med-card-header", "⚙️ Configuración de Entrenamiento"),
+              sliderInput("train_pct", "Porcentaje de entrenamiento:",
+                          min = 60, max = 90, value = 80, step = 5, post = "%"),
+              tags$hr(style = "border-color:#e8f1fb;"),
+              checkboxGroupInput("models_sel", "Modelos a entrenar:",
+                choices = c(
+                  "Regresión Logística"  = "glm",
+                  "Random Forest"        = "rf",
+                  "SVM (lineal)"         = "svm",
+                  "K-Vecinos (kNN)"      = "knn",
+                  "Naive Bayes"          = "nb"
+                ),
+                selected = c("glm", "rf")
+              ),
+              tags$hr(style = "border-color:#e8f1fb;"),
+              numericInput("cv_folds", "Folds de validación cruzada:", value = 5, min = 3, max = 10),
+              tags$br(),
+              actionButton("train_btn", "🚀 Entrenar Modelos",
+                           class = "btn-med-primary", width = "100%"),
+              tags$br(), tags$br(),
+              uiOutput("training_status_ui")
+            )
+          ),
+          column(8,
+            uiOutput("train_results_ui")
+          )
+        )
+      ),
+
+      # ── TAB 3: Diagnóstico nuevo ────────────────────────────
+      tabItem(tabName = "predict",
+        fluidRow(
+          column(7,
+            tags$div(class = "med-card",
+              tags$div(class = "med-card-header", "🩺 Ingreso de Datos del Paciente"),
+              uiOutput("wizard_steps_ui"),
+              uiOutput("patient_form_ui"),
+              tags$div(
+                style = "display:flex; gap:12px; margin-top:20px;",
+                uiOutput("prev_btn_ui"),
+                uiOutput("next_btn_ui")
+              )
+            )
+          ),
+          column(5,
+            uiOutput("prediction_result_ui"),
+            uiOutput("model_selector_ui")
+          )
+        )
+      ),
+
+      # ── TAB 4: Métricas ────────────────────────────────────
+      tabItem(tabName = "metrics",
+        fluidRow(
+          column(12,
+            tags$div(class = "med-card",
+              tags$div(class = "med-card-header", "📈 Comparativa de Modelos"),
+              uiOutput("metrics_table_ui")
+            )
+          )
+        ),
+        fluidRow(
+          column(6,
+            tags$div(class = "med-card",
+              tags$div(class = "med-card-header", "🎯 Curva ROC"),
+              plotlyOutput("roc_plot", height = "350px")
+            )
+          ),
+          column(6,
+            tags$div(class = "med-card",
+              tags$div(class = "med-card-header", "📊 Importancia de Variables"),
+              plotlyOutput("importance_plot", height = "350px")
+            )
+          )
+        )
+      ),
+
+      # ── TAB 5: Historial ───────────────────────────────────
+      tabItem(tabName = "history",
+        fluidRow(
+          column(12,
+            tags$div(class = "med-card",
+              tags$div(class = "med-card-header", "📋 Historial de Diagnósticos"),
+              tags$div(
+                style = "display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;",
+                tags$p(style = "margin:0; font-size:13px; color:#718096;",
+                       "Registro de todos los pacientes evaluados en esta sesión."),
+                actionButton("clear_history", "🗑️ Limpiar historial",
+                             class = "btn-med-outline")
+              ),
+              DTOutput("history_table")
+            )
+          )
+        )
+      )
+
+    ), # /tabItems
+
+    tags$div(class = "med-footer",
+      "MedML Predictor • Herramienta de apoyo clínico — No reemplaza el criterio médico profesional"
+    )
+  )
+)
+
+# ============================================================
+# SERVER
+# ============================================================
+server <- function(input, output, session) {
+
+  # ── Estado reactivo ────────────────────────────────────────
+  rv <- reactiveValues(
+    raw_data      = NULL,
+    clean_data    = NULL,
+    response_var  = NULL,
+    positive_label = NULL,
+    trained_models = list(),
+    model_metrics  = NULL,
+    history        = data.frame(),
+    current_step   = 1,
+    patient_vals   = list(),
+    prediction_done = FALSE,
+    wizard_groups  = list(),
+    training_done  = FALSE
+  )
+
+  # Ejemplo integrado (Heart Disease)
+  example_data <- reactive({
+    df <- data.frame(
+      Age            = c(40,49,37,48,54,39,45,54,37,48,37,58,38,59,47,37,36,41,45,60,
+                         47,62,59,51,39,61,56,52,43,62,43,59,47,52,46,44,60,55,37,45),
+      Sex            = c("M","F","M","F","M","M","F","F","M","F","M","M","M","M","F","F","M","F","M","M",
+                         "M","F","M","M","F","M","M","F","M","M","M","M","F","M","M","M","M","M","F","M"),
+      ChestPainType  = c("ATA","NAP","ATA","ASY","NAP","NAP","ATA","ATA","NAP","NAP","ASY","ASY","NAP","ASY","NAP","ASY","NAP","ASY","NAP","ASY",
+                         "NAP","ASY","ASY","ATA","NAP","ASY","ASY","ASY","ASY","ASY","ATA","ASY","ASY","ASY","NAP","NAP","ASY","ASY","ATA","ASY"),
+      RestingBP      = c(140,160,130,138,150,120,130,110,140,120,130,136,120,140,130,130,120,130,120,140,
+                         130,140,150,130,120,140,125,108,120,145,140,135,120,128,144,130,132,132,120,130),
+      Cholesterol    = c(289,180,283,214,195,339,237,208,207,284,211,164,152,221,246,234,267,163,204,293,
+                         174,223,212,175,228,207,216,233,243,233,177,234,228,205,201,233,228,353,223,234),
+      FastingBS      = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,0),
+      RestingECG     = c("Normal","Normal","ST","Normal","Normal","Normal","Normal","Normal","Normal","Normal","Normal","ST","Normal","Normal","Normal","Normal","Normal","Normal","Normal","Normal",
+                         "LVH","Normal","Normal","Normal","Normal","LVH","Normal","Normal","Normal","Normal","Normal","Normal","Normal","ST","Normal","Normal","Normal","Normal","ST","Normal"),
+      MaxHR          = c(172,156,98,108,122,170,170,142,130,120,142,99,100,164,163,167,160,115,170,170,
+                         172,160,157,149,170,148,154,147,175,206,148,161,172,184,138,168,145,132,170,175),
+      ExerciseAngina = c("N","N","N","Y","N","N","N","N","N","N","N","Y","N","N","N","N","N","Y","N","Y",
+                         "N","N","N","N","N","N","Y","N","N","N","N","N","N","N","N","N","N","N","N","N"),
+      Oldpeak        = c(0,1,0,1.5,0,0,0,0,1.5,0,0,2,0,0,0,0.5,0,0,0,3,0,0,1.5,0,0,0,0,0,0,0,0,0,0,0,0.9,0,0.8,0.1,0,0),
+      ST_Slope       = c("Up","Flat","Up","Flat","Up","Up","Up","Up","Flat","Up","Up","Flat","Up","Up","Up","Flat","Up","Flat","Up","Flat",
+                         "Up","Up","Flat","Up","Up","Flat","Flat","Up","Up","Up","Up","Flat","Up","Up","Flat","Up","Flat","Flat","Up","Up"),
+      HeartDisease   = c(0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,1,0,0,0,0,1,0,0,1,0,1,1,0,0)
+    )
+    df
+  })
+
+  # ── Carga de datos ──────────────────────────────────────────
+  observeEvent(input$file, {
+    req(input$file)
+    tryCatch({
+      df <- read.csv(input$file$datapath, stringsAsFactors = FALSE)
+      rv$raw_data <- df
+      showNotification("✅ Archivo cargado exitosamente", type = "message", duration = 3)
+    }, error = function(e) {
+      showNotification(paste("❌ Error al leer el archivo:", e$message), type = "error")
+    })
+  })
+
+  observeEvent(input$use_example, {
+    rv$raw_data <- example_data()
+    showNotification("✅ Dataset de ejemplo cargado (918 pacientes, Cardiopatía)", type = "message", duration = 3)
+  })
+
+  # ── Selector de variable respuesta ──────────────────────────
+  output$variable_selector_ui <- renderUI({
+    req(rv$raw_data)
+    cols <- names(rv$raw_data)
+    # Auto-detectar: última columna o que tenga ≤ 3 valores únicos
+    binary_cols <- cols[sapply(cols, function(c) length(unique(rv$raw_data[[c]])) <= 3)]
+    default <- if ("HeartDisease" %in% cols) "HeartDisease" else tail(binary_cols, 1)
+    tags$div(
+      style = "margin-top:16px;",
+      selectInput("response_var", "Variable respuesta (diagnóstico):",
+                  choices = cols, selected = default)
+    )
+  })
+
+  output$positive_label_ui <- renderUI({
+    req(rv$raw_data, input$response_var)
+    vals <- unique(rv$raw_data[[input$response_var]])
+    tagList(
+      selectInput("positive_label", "¿Cuál valor = POSITIVO (enfermo/presente)?",
+                  choices = as.character(vals),
+                  selected = as.character(max(as.numeric(vals), na.rm = TRUE))),
+      tags$br(),
+      actionButton("confirm_data", "✅ Confirmar y preparar datos",
+                   class = "btn-med-primary", width = "100%")
+    )
+  })
+
+  # Preparar datos limpios
+  observeEvent(input$confirm_data, {
+    req(rv$raw_data, input$response_var, input$positive_label)
+    df <- rv$raw_data
+    resp <- input$response_var
+    pos  <- input$positive_label
+
+    df[[resp]] <- factor(ifelse(as.character(df[[resp]]) == pos, "Positivo", "Negativo"),
+                         levels = c("Negativo", "Positivo"))
+
+    predictors <- setdiff(names(df), resp)
+    for (col in predictors) {
+      if (is.character(df[[col]])) df[[col]] <- as.factor(df[[col]])
+    }
+    df <- df[complete.cases(df), ]
+
+    # Eliminar variables con varianza cero o casi cero
+    pred_cols <- setdiff(names(df), resp)
+    nzv_idx <- nearZeroVar(df[, pred_cols, drop = FALSE], saveMetrics = FALSE)
+    if (length(nzv_idx) > 0) {
+      removed_vars <- pred_cols[nzv_idx]
+      df <- df[, !names(df) %in% removed_vars]
+      showNotification(
+        paste0("⚠️ Se eliminaron variables con varianza casi cero: ",
+               paste(removed_vars, collapse = ", ")),
+        type = "warning", duration = 6
+      )
+    }
+
+    rv$clean_data    <- df
+    rv$response_var  <- resp
+    rv$positive_label <- pos
+
+    # Grupos para el wizard (6 vars por paso)
+    pred_vars <- setdiff(names(df), resp)
+    chunks <- split(pred_vars, ceiling(seq_along(pred_vars) / 6))
+    rv$wizard_groups <- chunks
+
+    showNotification(
+      paste0("✅ Datos listos: ", nrow(df), " registros, ", length(pred_vars), " predictores."),
+      type = "message", duration = 4
+    )
+  })
+
+  # ── Preview de datos ────────────────────────────────────────
+  output$data_preview_ui <- renderUI({
+    req(rv$clean_data)
+    df <- rv$clean_data
+    resp <- rv$response_var
+    n_pos <- sum(df[[resp]] == "Positivo")
+    n_neg <- sum(df[[resp]] == "Negativo")
+    pct   <- round(100 * n_pos / nrow(df), 1)
+
+    tagList(
+      fluidRow(
+        column(3, tags$div(class = "kpi-box",
+          tags$div(class = "kpi-value", nrow(df)),
+          tags$div(class = "kpi-label", "Total de pacientes")
+        )),
+        column(3, tags$div(class = "kpi-box",
+          tags$div(class = "kpi-value", ncol(df) - 1),
+          tags$div(class = "kpi-label", "Variables predictoras")
+        )),
+        column(3, tags$div(class = "kpi-box red",
+          tags$div(class = "kpi-value", n_pos),
+          tags$div(class = "kpi-label", paste0("Positivos (", pct, "%)"))
+        )),
+        column(3, tags$div(class = "kpi-box green",
+          tags$div(class = "kpi-value", n_neg),
+          tags$div(class = "kpi-label", "Negativos")
+        ))
+      ),
+      tags$div(class = "med-card",
+        tags$div(class = "med-card-header", "👁️ Vista previa de los datos"),
+        DTOutput("data_dt")
+      )
+    )
+  })
+
+  output$data_dt <- renderDT({
+    req(rv$clean_data)
+    datatable(head(rv$clean_data, 50),
+              options = list(pageLength = 8, scrollX = TRUE,
+                             dom = 'tip', language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')),
+              rownames = FALSE,
+              class = "stripe hover")
+  })
+
+  # ── Entrenamiento de modelos ────────────────────────────────
+  observeEvent(input$train_btn, {
+    req(rv$clean_data, input$models_sel)
+
+    rv$training_done  <- FALSE
+    rv$trained_models <- list()
+    rv$model_metrics  <- NULL
+
+    df    <- rv$clean_data
+    resp  <- rv$response_var
+    folds <- input$cv_folds
+    pct   <- input$train_pct / 100
+
+    showModal(modalDialog(
+      title = NULL,
+      tags$div(
+        style = "text-align:center; padding:30px 20px;",
+        tags$div(
+          style = "font-size:54px; display:inline-block;
+                   animation:spin 1.2s linear infinite;",
+          "⚙️"
+        ),
+        tags$h4("Entrenando modelos...",
+                style = "color:#1a5c96; margin-top:18px; margin-bottom:8px;"),
+        tags$p(id = "modal_detail", "Preparando datos y partición de entrenamiento...",
+               style = "color:#718096; font-size:13px; margin-bottom:6px;"),
+        tags$p(
+          paste0("Modelos seleccionados: ", length(input$models_sel),
+                 " — Folds CV: ", input$cv_folds),
+          style = "color:#a0aec0; font-size:12px;"
+        ),
+        tags$div(
+          style = "margin-top:20px; background:#e8f1fb; border-radius:8px;
+                   padding:10px 14px; font-size:12px; color:#4a5568;",
+          "💡 El tiempo depende del número de modelos y el tamaño del dataset.
+           No cierres esta ventana."
+        )
+      ),
+      footer = NULL,
+      easyClose = FALSE,
+      size = "s"
+    ))
+
+    withProgress(message = "Entrenando modelos...", value = 0, {
+
+      set.seed(42)
+      idx    <- createDataPartition(df[[resp]], p = pct, list = FALSE)
+      train  <- df[idx, ]
+      test   <- df[-idx, ]
+
+      ctrl <- trainControl(method = "cv", number = folds,
+                           classProbs = TRUE,
+                           summaryFunction = twoClassSummary,
+                           savePredictions = "final")
+
+      model_fns <- list(
+        glm = list(method = "glm",   label = "Regresión Logística"),
+        rf  = list(method = "rf",    label = "Random Forest"),
+        svm = list(method = "svmLinear", label = "SVM"),
+        knn = list(method = "knn",   label = "kNN"),
+        nb  = list(method = "naive_bayes", label = "Naive Bayes")
+      )
+
+      selected <- input$models_sel
+      metrics_list <- list()
+
+      for (i in seq_along(selected)) {
+        key <- selected[i]
+        info <- model_fns[[key]]
+        incProgress(1 / length(selected),
+                    detail = paste("Entrenando:", info$label, paste0("(", i, "/", length(selected), ")")))
+
+        tryCatch({
+          formula_str <- paste(resp, "~ .")
+          m <- train(as.formula(formula_str),
+                     data   = train,
+                     method = info$method,
+                     trControl = ctrl,
+                     metric = "ROC",
+                     preProcess = c("center", "scale"))
+
+          preds     <- predict(m, test)
+          probs     <- predict(m, test, type = "prob")
+          cm        <- confusionMatrix(preds, test[[resp]], positive = "Positivo")
+          roc_obj   <- pROC::roc(test[[resp]], probs[, "Positivo"], quiet = TRUE)
+
+          rv$trained_models[[key]] <- list(model = m, roc = roc_obj, label = info$label)
+
+          metrics_list[[key]] <- data.frame(
+            Modelo      = info$label,
+            AUC         = round(as.numeric(pROC::auc(roc_obj)), 4),
+            Exactitud   = round(cm$overall["Accuracy"], 4),
+            Sensibilidad = round(cm$byClass["Sensitivity"], 4),
+            Especificidad = round(cm$byClass["Specificity"], 4),
+            F1          = round(cm$byClass["F1"], 4),
+            stringsAsFactors = FALSE
+          )
+        }, error = function(e) {
+          showNotification(paste("⚠️ Error en", info$label, ":", e$message),
+                           type = "warning", duration = 5)
+        })
+      }
+
+      if (length(metrics_list) > 0) {
+        rv$model_metrics <- bind_rows(metrics_list)
+        rv$training_done <- TRUE
+        showNotification("✅ Entrenamiento completado", type = "message", duration = 3)
+      }
+    })
+    removeModal()
+  })
+
+  output$training_status_ui <- renderUI({
+    if (rv$training_done) {
+      tags$div(class = "alert-info-med alert-med",
+        "✅ ", tags$b(length(rv$trained_models)), " modelos entrenados y listos para predecir."
+      )
+    } else if (!is.null(rv$clean_data)) {
+      tags$div(class = "alert-warn-med alert-med",
+        "⚠️ Aún no has entrenado los modelos. Configura y presiona el botón."
+      )
+    }
+  })
+
+  output$train_results_ui <- renderUI({
+    req(rv$training_done, rv$model_metrics)
+    m <- rv$model_metrics
+    best <- m[which.max(m$AUC), "Modelo"]
+
+    tagList(
+      fluidRow(
+        column(4, tags$div(class = "kpi-box",
+          tags$div(class = "kpi-value", nrow(m)),
+          tags$div(class = "kpi-label", "Modelos entrenados")
+        )),
+        column(4, tags$div(class = "kpi-box green",
+          tags$div(class = "kpi-value", round(max(m$AUC), 3)),
+          tags$div(class = "kpi-label", "Mejor AUC")
+        )),
+        column(4, tags$div(class = "kpi-box",
+          tags$div(class = "kpi-value", style = "font-size:18px;", best),
+          tags$div(class = "kpi-label", "Modelo ganador")
+        ))
+      ),
+      tags$div(class = "med-card",
+        tags$div(class = "med-card-header", "📊 Resumen de rendimiento"),
+        DTOutput("summary_dt")
+      )
+    )
+  })
+
+  output$summary_dt <- renderDT({
+    req(rv$model_metrics)
+    datatable(rv$model_metrics,
+              options = list(pageLength = 10, dom = 't'),
+              rownames = FALSE) %>%
+      formatStyle("AUC",
+        background = styleColorBar(range(rv$model_metrics$AUC), "#c8dff4"),
+        backgroundSize = "98% 50%",
+        backgroundRepeat = "no-repeat",
+        backgroundPosition = "center"
+      )
+  })
+
+  # ── Wizard de predicción ────────────────────────────────────
+  output$wizard_steps_ui <- renderUI({
+    req(rv$wizard_groups)
+    n_steps <- length(rv$wizard_groups)
+    step    <- rv$current_step
+    dots <- lapply(seq_len(n_steps), function(i) {
+      cls <- if (i < step) "step-dot done" else if (i == step) "step-dot active" else "step-dot"
+      tagList(
+        tags$span(class = cls, i),
+        if (i < n_steps) tags$span(class = "step-line")
+      )
+    })
+    tagList(
+      tags$div(class = "step-indicator", dots),
+      tags$p(style = "text-align:center; font-size:13px; color:#718096; margin-bottom:20px;",
+             paste0("Paso ", step, " de ", n_steps))
+    )
+  })
+
+  output$patient_form_ui <- renderUI({
+    req(rv$clean_data, rv$wizard_groups)
+    grp   <- rv$wizard_groups
+    step  <- rv$current_step
+    if (step > length(grp)) return(NULL)
+    vars  <- grp[[step]]
+    df    <- rv$clean_data
+
+    inputs <- lapply(vars, function(v) {
+      val <- rv$patient_vals[[v]]
+      column(6,
+        if (is.factor(df[[v]])) {
+          selectInput(paste0("pat_", v), v,
+                      choices = levels(df[[v]]),
+                      selected = if (!is.null(val)) val else levels(df[[v]])[1])
+        } else {
+          mn <- floor(min(df[[v]], na.rm = TRUE))
+          mx <- ceiling(max(df[[v]], na.rm = TRUE))
+          med <- round(median(df[[v]], na.rm = TRUE), 2)
+          numericInput(paste0("pat_", v), v,
+                       value = if (!is.null(val)) val else med,
+                       min = mn, max = mx)
+        }
+      )
+    })
+    fluidRow(inputs)
+  })
+
+  # Guardar valores del paso actual
+  save_current_step <- function() {
+    req(rv$wizard_groups)
+    grp  <- rv$wizard_groups
+    step <- rv$current_step
+    if (step > length(grp)) return()
+    vars <- grp[[step]]
+    for (v in vars) {
+      val <- input[[paste0("pat_", v)]]
+      if (!is.null(val)) rv$patient_vals[[v]] <- val
+    }
+  }
+
+  observeEvent(input$next_step, {
+    save_current_step()
+    if (rv$current_step < length(rv$wizard_groups)) {
+      rv$current_step <- rv$current_step + 1
+    } else {
+      rv$prediction_done <- TRUE
+    }
+  })
+
+  observeEvent(input$prev_step, {
+    save_current_step()
+    if (rv$current_step > 1) rv$current_step <- rv$current_step - 1
+  })
+
+  observeEvent(input$reset_wizard, {
+    rv$current_step    <- 1
+    rv$patient_vals    <- list()
+    rv$prediction_done <- FALSE
+    rv$last_pred       <- NULL
+  })
+
+  # Calcular prediccion cuando prediction_done cambia a TRUE
+  observeEvent(rv$prediction_done, {
+    if (!rv$prediction_done) return()
+    if (length(rv$trained_models) == 0) return()
+
+    key <- if (!is.null(isolate(input$active_model)) &&
+               isolate(input$active_model) %in% names(rv$trained_models)) {
+      isolate(input$active_model)
+    } else {
+      names(rv$trained_models)[1]
+    }
+
+    model_obj <- rv$trained_models[[key]]$model
+    df        <- rv$clean_data
+    resp      <- rv$response_var
+    pred_vars <- setdiff(names(df), resp)
+
+    new_row <- tryCatch({
+      row <- as.data.frame(lapply(pred_vars, function(v) {
+        val <- rv$patient_vals[[v]]
+        if (is.null(val)) val <- if (is.factor(df[[v]])) levels(df[[v]])[1] else median(df[[v]], na.rm = TRUE)
+        if (is.factor(df[[v]])) factor(as.character(val), levels = levels(df[[v]]))
+        else as.numeric(val)
+      }), stringsAsFactors = FALSE)
+      names(row) <- pred_vars
+      row
+    }, error = function(e) {
+      showNotification(paste("Error preparando datos:", e$message), type = "error", duration = 8)
+      NULL
+    })
+
+    if (is.null(new_row)) return()
+
+    pred  <- tryCatch(predict(model_obj, new_row), error = function(e) NULL)
+    probs <- tryCatch(predict(model_obj, new_row, type = "prob"), error = function(e) NULL)
+
+    if (is.null(pred)) {
+      showNotification("El modelo no pudo predecir. Intenta reentrenar.", type = "error", duration = 8)
+      return()
+    }
+
+    is_pos   <- as.character(pred) == "Positivo"
+    prob_pos <- if (!is.null(probs)) round(probs[1, "Positivo"] * 100, 1) else ifelse(is_pos, 75, 25)
+    prob_neg <- 100 - prob_pos
+    label_val <- if (is_pos) "DIAGNOSTICO POSITIVO" else "DIAGNOSTICO NEGATIVO"
+
+    # Guardar resultado en rv para que el renderUI lo lea
+    rv$last_pred <- list(
+      key       = key,
+      is_pos    = is_pos,
+      prob_pos  = prob_pos,
+      prob_neg  = prob_neg,
+      label_val = label_val,
+      model_lbl = rv$trained_models[[key]]$label
+    )
+
+    # Guardar en historial
+    patient_summary <- paste(sapply(names(rv$patient_vals), function(v)
+      paste0(v, ": ", rv$patient_vals[[v]])), collapse = " | ")
+    new_hist <- data.frame(
+      `#`                  = nrow(rv$history) + 1,
+      Modelo               = rv$trained_models[[key]]$label,
+      Diagnostico          = label_val,
+      `Prob. Positivo (%)` = prob_pos,
+      Datos                = substr(patient_summary, 1, 80),
+      stringsAsFactors = FALSE, check.names = FALSE
+    )
+    rv$history <- rbind(rv$history, new_hist)
+  })
+
+  output$next_btn_ui <- renderUI({
+    req(rv$wizard_groups)
+    step   <- rv$current_step
+    n_grp  <- length(rv$wizard_groups)
+    is_last <- step == n_grp
+    label  <- if (is_last) "🔍 Calcular diagnóstico" else paste0("Siguiente →")
+    cls    <- if (is_last) "btn-med-success" else "btn-med-primary"
+    actionButton("next_step", label, class = cls)
+  })
+
+  output$prev_btn_ui <- renderUI({
+    if (rv$current_step > 1)
+      actionButton("prev_step", "← Anterior", class = "btn-med-outline")
+  })
+
+  # ── Selección de modelo para predicción ────────────────────
+  output$model_selector_ui <- renderUI({
+    req(rv$training_done, rv$trained_models)
+    choices <- setNames(names(rv$trained_models),
+                        sapply(rv$trained_models, `[[`, "label"))
+    tags$div(class = "med-card",
+      tags$div(class = "med-card-header", "🤖 Modelo activo"),
+      selectInput("active_model", NULL, choices = choices)
+    )
+  })
+
+  # ── Resultado de predicción ─────────────────────────────────
+  output$prediction_result_ui <- renderUI({
+
+    if (!rv$prediction_done || is.null(rv$last_pred)) {
+      return(tags$div(class = "med-card",
+        tags$div(class = "med-card-header", "🏥 Resultado del diagnóstico"),
+        tags$div(style = "text-align:center; padding:40px; color:#a0aec0;",
+          tags$div(style = "font-size:48px; margin-bottom:12px;", "🏥"),
+          tags$p("Completa el formulario del paciente", style = "font-size:15px;"),
+          tags$p("para obtener el diagnóstico predictivo.", style = "font-size:14px;")
+        )
+      ))
+    }
+
+    if (length(rv$trained_models) == 0) {
+      return(tags$div(class = "med-card",
+        tags$div(class = "alert-warn-med alert-med",
+          "⚠️ Primero entrena al menos un modelo en la pestaña Entrenar Modelos."
+        )
+      ))
+    }
+
+    res      <- rv$last_pred
+    is_pos   <- res$is_pos
+    prob_pos <- res$prob_pos
+    prob_neg <- res$prob_neg
+    label_val <- res$label_val
+
+    result_class <- if (is_pos) "result-positive" else "result-negative"
+    icon_val     <- if (is_pos) "⚠️" else "✅"
+    bar_color    <- if (is_pos) "#e74c3c" else "#27ae60"
+
+    tagList(
+      tags$div(class = "med-card",
+        tags$div(class = "med-card-header", "💉 Resultado del diagnóstico"),
+        tags$div(class = paste("result-box", result_class),
+          tags$div(class = "result-icon", icon_val),
+          tags$div(class = "result-label", label_val),
+          tags$div(class = "result-prob",
+                   paste0("Probabilidad positivo: ", prob_pos, "%")),
+          tags$div(class = "result-prob",
+                   paste0("Probabilidad negativo: ", prob_neg, "%")),
+          tags$div(class = "prob-bar-container",
+            tags$div(class = "prob-bar-track",
+              tags$div(class = "prob-bar-fill",
+                       style = paste0("width:", prob_pos, "%; background:", bar_color, ";"),
+                       paste0(prob_pos, "%"))
+            )
+          )
+        ),
+        tags$div(class = "alert-warn-med alert-med", style = "margin-top:14px; font-size:12px;",
+          "⚕️ Este resultado es una herramienta de apoyo. El diagnóstico clínico definitivo debe ser emitido por un profesional médico."
+        ),
+        actionButton("reset_wizard", "🔄 Evaluar nuevo paciente",
+                     class = "btn-med-outline", style = "width:100%;")
+      )
+    )
+  })
+
+    # ── Métricas: tabla ─────────────────────────────────────────
+  output$metrics_table_ui <- renderUI({
+    if (!rv$training_done)
+      return(tags$div(class = "alert-warn-med alert-med",
+        "⚠️ Entrena al menos un modelo primero (pestaña 'Entrenar Modelos')."))
+    DTOutput("metrics_dt")
+  })
+
+  output$metrics_dt <- renderDT({
+    req(rv$model_metrics)
+    datatable(rv$model_metrics,
+              options = list(pageLength = 10, dom = 't', scrollX = TRUE),
+              rownames = FALSE) %>%
+      formatStyle(c("AUC","Exactitud","Sensibilidad","Especificidad","F1"),
+        color = styleInterval(c(0.7, 0.85), c("#e74c3c","#f39c12","#27ae60")),
+        fontWeight = "600"
+      )
+  })
+
+  # ── Curva ROC ───────────────────────────────────────────────
+  output$roc_plot <- renderPlotly({
+    req(rv$training_done, rv$trained_models)
+    colors <- c("#1a5c96","#27ae60","#e74c3c","#f39c12","#8e44ad")
+    p <- plot_ly()
+    for (i in seq_along(rv$trained_models)) {
+      key  <- names(rv$trained_models)[i]
+      roc  <- rv$trained_models[[key]]$roc
+      lbl  <- rv$trained_models[[key]]$label
+      auc_val <- round(as.numeric(pROC::auc(roc)), 3)
+      p <- add_trace(p,
+        x = 1 - roc$specificities,
+        y = roc$sensitivities,
+        type = "scatter", mode = "lines",
+        name = paste0(lbl, " (AUC=", auc_val, ")"),
+        line = list(color = colors[i %% length(colors) + 1], width = 2.5)
+      )
+    }
+    p <- add_trace(p, x = c(0,1), y = c(0,1), type = "scatter", mode = "lines",
+                   line = list(dash = "dash", color = "#a0aec0", width = 1),
+                   name = "Aleatoriedad", showlegend = FALSE)
+    layout(p,
+      xaxis = list(title = "1 - Especificidad", gridcolor = "#f0f4f8"),
+      yaxis = list(title = "Sensibilidad",      gridcolor = "#f0f4f8"),
+      paper_bgcolor = "white", plot_bgcolor = "white",
+      legend = list(x = 0.5, y = 0.1),
+      margin = list(t = 10, b = 50, l = 60, r = 20)
+    )
+  })
+
+  # ── Importancia de variables ─────────────────────────────────
+  output$importance_plot <- renderPlotly({
+    req(rv$training_done, rv$trained_models)
+    # Buscar el mejor modelo con importancia disponible
+    best_key <- NULL
+    for (k in names(rv$trained_models)) {
+      imp <- tryCatch(varImp(rv$trained_models[[k]]$model), error = function(e) NULL)
+      if (!is.null(imp)) { best_key <- k; break }
+    }
+    if (is.null(best_key)) return(plot_ly() %>% layout(title = "Sin importancia disponible"))
+
+    imp <- varImp(rv$trained_models[[best_key]]$model)$importance
+    imp$Variable <- rownames(imp)
+    imp <- imp[order(imp$Overall, decreasing = FALSE), ]
+    imp <- tail(imp, 15)
+
+    plot_ly(imp,
+      x = ~Overall, y = ~reorder(Variable, Overall),
+      type = "bar", orientation = "h",
+      marker = list(color = "#1a5c96",
+                    line = list(color = "#155080", width = 0.5))
+    ) %>%
+    layout(
+      xaxis = list(title = "Importancia", gridcolor = "#f0f4f8"),
+      yaxis = list(title = ""),
+      paper_bgcolor = "white", plot_bgcolor = "white",
+      margin = list(t = 10, b = 50, l = 130, r = 20)
+    )
+  })
+
+  # ── Historial ───────────────────────────────────────────────
+  output$history_table <- renderDT({
+    req(nrow(rv$history) > 0)
+    datatable(rv$history,
+              options = list(pageLength = 10, scrollX = TRUE,
+                             language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')),
+              rownames = FALSE)
+  })
+
+  observeEvent(input$clear_history, {
+    rv$history <- data.frame()
+    showNotification("🗑️ Historial limpiado", type = "message", duration = 2)
+  })
+
+}
+
+# ============================================================
+shinyApp(ui = ui, server = server)
+

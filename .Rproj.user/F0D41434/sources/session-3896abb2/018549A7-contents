@@ -1,0 +1,236 @@
+# "El teorema que lo explica casi todo" 
+# Simulador interactivo del Teorema del Límite Central (Monte Carlo)
+
+library(shiny)
+library(bslib)
+library(ggplot2)
+library(dplyr)
+library(scales)
+
+TINTA <- "#1C1C1C"
+GRIS <- "#6B6B6B"
+LINEA <- "#DADADA"
+ACENTO <- "#8B3A3A"     
+FONDO <- "#FDFCFA"
+
+tema <- bs_theme(
+  version = 5,
+  bg = FONDO,
+  fg = TINTA,
+  primary = ACENTO,
+  secondary = GRIS,
+  success = ACENTO,
+  base_font = font_google("Source Sans 3"),
+  heading_font = font_google("Libre Baskerville"),
+  code_font = font_google("Fira Code"),
+  "font-size-base" = "0.97rem"
+) %>%
+  bs_add_rules("
+    body { background: #FDFCFA; }
+    .navbar, .navbar-brand { font-family: 'Libre Baskerville', serif; font-weight: 400;
+                              font-style: italic; letter-spacing: 0.01em; color: #1C1C1C !important; }
+    .navbar { background: #FDFCFA !important; border-bottom: 1px solid #DADADA; }
+    h1, h2, h3 { font-family: 'Libre Baskerville', serif; font-weight: 400; color: #1C1C1C; }
+    .card { background: #FDFCFA; border: none; border-top: 1px solid #DADADA; border-radius: 0;
+            box-shadow: none; }
+    .card-header { background: transparent; border-bottom: 1px solid #DADADA;
+                   font-family: 'Fira Code', monospace; font-size: 0.72rem;
+                   letter-spacing: 0.1em; text-transform: uppercase; color: #6B6B6B; }
+    .nav-tabs { border-bottom: 1px solid #DADADA; }
+    .nav-tabs .nav-link { font-family: 'Fira Code', monospace; font-size: 0.78rem;
+                          letter-spacing: 0.06em; text-transform: uppercase; color: #6B6B6B;
+                          border: none; border-bottom: 2px solid transparent; }
+    .nav-tabs .nav-link.active { color: #8B3A3A !important; background: transparent;
+                                  border-bottom: 2px solid #8B3A3A; }
+    .value-box-title { font-family: 'Fira Code', monospace !important; font-size: 0.68rem !important;
+                        letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B6B !important; }
+    .value-box-value { font-family: 'Libre Baskerville', serif !important; font-weight: 400 !important;
+                        color: #1C1C1C !important; }
+    .bslib-value-box { background: transparent !important; border: 1px solid #DADADA !important;
+                        border-left: 3px solid #8B3A3A !important; border-radius: 0 !important; }
+    .bslib-value-box .value-box-showcase { color: #DADADA !important; }
+    .well, .sidebar { background-color: #F7F5F1 !important; border-right: 1px solid #DADADA !important;
+                       border-radius: 0 !important; }
+    hr { border-color: #DADADA; }
+    label, .form-label { font-family: 'Fira Code', monospace; font-size: 0.78rem;
+                          letter-spacing: 0.03em; color: #4A4A4A !important; }
+    .irs--shiny .irs-bar, .irs--shiny .irs-single { background: #8B3A3A; }
+    .btn-primary { background-color: #FDFCFA; border: 1px solid #1C1C1C; color: #1C1C1C;
+                   border-radius: 0; font-family: 'Fira Code', monospace; font-size: 0.8rem; }
+    .btn-primary:hover { background-color: #1C1C1C; color: #FDFCFA; }
+    .nota { font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #6B6B6B;
+            border-left: 2px solid #DADADA; padding: 4px 0 4px 14px; margin-top: 12px; }
+  ")
+
+# UI
+
+ui <- page_sidebar(
+  title = "El teorema que lo explica casi todo",
+  theme = tema,
+
+  sidebar = sidebar(
+    width = 340,
+    title = "Parámetros",
+
+    markdown("Ninguna de estas distribuciones 'poblacionales' se ve como una campana. Elige una, sube el tamaño de muestra, y mira qué le pasa al promedio."),
+
+    selectInput("distribucion", "Distribución poblacional",
+                choices = c("Uniforme" = "uniforme",
+                            "Exponencial" = "exponencial",
+                            "Bimodal" = "bimodal",
+                            "Extrema" = "extrema")),
+
+    sliderInput("n", "Tamaño de muestra (n)", min = 1, max = 200, value = 2, step = 1),
+    sliderInput("n_muestras", "Número de muestras simuladas", min = 100, max = 5000, value = 2000, step = 100),
+
+    hr(),
+    actionButton("resimular", "Re-simular", class = "btn-primary w-100"),
+
+    hr(),
+    markdown("**Lo que deberías notar:** con `n = 1` la distribución de la media ES la distribución original. Conforme subes `n`, sin importar qué tan chueca era la original, la distribución de la media se vuelve una campana.")
+  ),
+
+  layout_columns(
+    fill = FALSE,
+    value_box(
+      title = "Media teórica (μ)",
+      value = textOutput("media_teorica", inline = TRUE),
+      showcase = bsicons::bs_icon("dash-lg"),
+      theme = "primary"
+    ),
+    value_box(
+      title = "Error estándar teórico",
+      value = textOutput("se_teorico", inline = TRUE),
+      showcase = bsicons::bs_icon("rulers"),
+      theme = "secondary"
+    ),
+    value_box(
+      title = "Error estándar observado",
+      value = textOutput("se_observado", inline = TRUE),
+      showcase = bsicons::bs_icon("activity"),
+      theme = "success"
+    )
+  ),
+
+  navset_card_tab(
+    full_screen = TRUE,
+    title = "Resultados",
+    nav_panel(
+      "Distribución poblacional",
+      plotOutput("pop_plot", height = "460px"),
+      div(class = "nota", "Así se ve la variable original — de aquí sale cada observación individual, antes de promediar nada.")
+    ),
+    nav_panel(
+      "Distribución de la media muestral",
+      plotOutput("TLC_plot", height = "460px"),
+      uiOutput("nota_TLC")
+    )
+  )
+)
+
+# Server
+
+server <- function(input, output, session) {
+
+  # Generador según la distribución elegida
+
+  generar_poblacion <- function(n, distribucion) {
+    switch(distribucion,
+      uniforme = runif(n, 0, 10),
+      exponencial = rexp(n, rate = 0.5),
+      bimodal = c(rnorm(n / 2, mean = 2, sd = 0.8), rnorm(n - floor(n / 2), mean = 8, sd = 0.8)),
+      extrema = rbeta(n, 0.3, 8) * 10
+    )
+  }
+
+  parametros_teoricos <- reactive({
+    # Aproximamos media y varianza teóricas por Monte Carlo
+    set.seed(1)
+    muestra_grande <- generar_poblacion(200000, input$distribucion)
+    list(media = mean(muestra_grande), sd = sd(muestra_grande))
+  })
+
+  poblacion_muestra <- reactive({
+    input$resimular
+    set.seed(NULL)
+    generar_poblacion(5000, input$distribucion)
+  })
+
+  medias_simuladas <- reactive({
+    input$resimular
+    n <- input$n
+    replicate(input$n_muestras, mean(generar_poblacion(n, input$distribucion)))
+  })
+
+  # Value boxes
+
+  output$media_teorica <- renderText({
+    round(parametros_teoricos()$media, 2)
+  })
+
+  output$se_teorico <- renderText({
+    p <- parametros_teoricos()
+    round(p$sd / sqrt(input$n), 3)
+  })
+
+  output$se_observado <- renderText({
+    round(sd(medias_simuladas()), 3)
+  })
+
+  output$nota_TLC <- renderUI({
+    if (input$n <= 2) {
+      div(class = "nota", "Con n tan chico, todavía se nota la forma original — sube el slider de tamaño de muestra para ver la transformación.")
+    } else if (input$n >= 30) {
+      div(class = "nota", "Con n ≥ 30 la distribución ya es prácticamente una normal, sin importar qué tan rara era la población original — esto es el TLC en acción.")
+    }
+  })
+
+  # Gráfica: población
+
+  output$pop_plot <- renderPlot({
+    df <- data.frame(x = poblacion_muestra())
+
+    ggplot(df, aes(x)) +
+      geom_histogram(bins = 40, fill = ACENTO, color = FONDO, alpha = 0.75, linewidth = 0.2) +
+      labs(x = "Valor individual", y = "Frecuencia") +
+      theme_minimal(base_size = 14, base_family = "sans") +
+      theme(
+        plot.background = element_rect(fill = FONDO, color = NA),
+        panel.background = element_rect(fill = FONDO, color = NA),
+        panel.grid.major = element_line(color = LINEA, linewidth = 0.3),
+        panel.grid.minor = element_blank(),
+        text = element_text(color = TINTA),
+        axis.text = element_text(color = GRIS)
+      )
+  }, bg = FONDO)
+
+  # Gráfica: distribución de la media
+
+  output$TLC_plot <- renderPlot({
+    medias <- medias_simuladas()
+    p <- parametros_teoricos()
+    se_teo <- p$sd / sqrt(input$n)
+
+    df <- data.frame(x = medias)
+    x_seq <- seq(min(medias), max(medias), length.out = 300)
+    normal_teorica <- data.frame(x = x_seq, y = dnorm(x_seq, p$media, se_teo))
+
+    ggplot(df, aes(x)) +
+      geom_histogram(aes(y = after_stat(density)), bins = 40, fill = ACENTO, color = FONDO, alpha = 0.45, linewidth = 0.2) +
+      geom_line(data = normal_teorica, aes(x, y), color = TINTA, linewidth = 1) +
+      labs(x = "Media de cada muestra", y = "Densidad",
+           subtitle = paste0("n = ", input$n, " · línea negra = normal teórica (TLC)")) +
+      theme_minimal(base_size = 14, base_family = "sans") +
+      theme(
+        plot.background = element_rect(fill = FONDO, color = NA),
+        panel.background = element_rect(fill = FONDO, color = NA),
+        panel.grid.major = element_line(color = LINEA, linewidth = 0.3),
+        panel.grid.minor = element_blank(),
+        text = element_text(color = TINTA),
+        axis.text = element_text(color = GRIS),
+        plot.subtitle = element_text(color = GRIS, family = "mono", size = 11)
+      )
+  }, bg = FONDO)
+}
+
+shinyApp(ui, server)

@@ -1,0 +1,36 @@
+---
+pagetitle: "Incertidumbre visible"
+---
+
+::: {.project-detail}
+
+[← Volver a proyectos](../proyectos.qmd){.back-link}
+
+# Incertidumbre visible
+
+::: {.project-detail-meta}
+[Bayesiana]{.tag .tag-bayes} · 2026
+:::
+
+::: {.project-detail-actions}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/incertidumbre-visible/){.btn-primary target="_blank"}
+[Ver código ↗](https://github.com/pauabyys-commits/incertidumbre-visible){.btn-secondary target="_blank"}
+:::
+
+## El problema
+
+¿Qué tan confiable es la tasa de un hospital chico comparada con uno grande? Un hospital con 25 pacientes y una tasa de reingreso alta puede simplemente estar teniendo mala suerte estadística, no un problema real de calidad.
+
+## Método
+
+Estimación bayesiana empírica (*Empirical Bayes Beta-Binomial*, por método de momentos) con *partial pooling*: los sitios con pocos pacientes se ajustan hacia el promedio general en vez de confiar ciegamente en su propia tasa cruda. 
+
+Los datos son reales, tomados del dataset público de CMS/Medicare "Readmissions and Deaths - Hospital", indicador de reingreso por insuficiencia cardíaca a 30 días, en hospitales de Texas.
+
+## Herramientas
+
+::: {.project-tags}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [bslib]{.tag .tag-r} [ggplot2]{.tag .tag-r} [dplyr]{.tag .tag-r}
+:::
+
+:::

@@ -1,0 +1,98 @@
+---
+pagetitle: "Home"
+---
+
+::: {.hero}
+
+<svg class="hero-line" width="300" height="100" viewBox="0 0 300 100" preserveAspectRatio="none" aria-hidden="true">
+  <polyline points="0,80 40,60 80,70 120,30 160,45 200,15 240,35 280,10 300,20" fill="none" stroke="currentColor" stroke-width="2"/>
+</svg>
+
+<svg class="hero-curve" width="200" height="100" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M 0,90 C 40,90 55,15 100,15 C 145,15 160,90 200,90" fill="none" stroke="currentColor" stroke-width="2"/>
+</svg>
+
+
+# [Estadística]{.accent} y machine learning
+
+
+**Paulina Rosas**
+
+Supervivencia · Bayesiana · Machine learning · Simulación
+
+::: {.hero-buttons}
+[Ver proyectos →](proyectos.qmd){.btn-primary}
+[Contacto](contacto.qmd){.btn-secondary}
+:::
+
+:::
+
+
+::: {.featured-section}
+
+## Proyectos
+
+::: {.project-grid}
+
+::: {.project-card}
+#### [Incertidumbre visible](proyectos/incertidumbre-visible.qmd)
+
+Estimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.
+
+::: {.project-tags}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [Bayesiana]{.tag .tag-bayes}
+:::
+
+::: {.project-meta}
+2026
+:::
+
+::: {.project-actions}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/incertidumbre-visible/){.btn-primary target="_blank"}
+[Código](https://github.com/pauabyys-commits/incertidumbre-visible){.btn-secondary target="_blank"}
+:::
+:::
+
+::: {.project-card}
+#### ¿Cuánto tiempo hasta el evento?
+
+Dashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.
+
+::: {.project-tags}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [Supervivencia]{.tag .tag-surv}
+:::
+
+::: {.project-meta}
+2026
+:::
+
+::: {.project-actions}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/supervivencia-cox/){.btn-primary target="_blank"}
+[Código](https://github.com/pauabyys-commits/supervivencia-cox){.btn-secondary target="_blank"}
+:::
+:::
+
+::: {.project-card}
+#### ML Predictor
+
+Comparación de modelos de clasificación (random forest, SVM) para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.
+
+::: {.project-tags}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [Machine Learning]{.tag .tag-ml}
+:::
+
+::: {.project-meta}
+2026
+:::
+
+::: {.project-actions}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/predictor-ml/){.btn-primary target="_blank"}
+[Código](https://github.com/pauabyys-commits/predictor-ml){.btn-secondary target="_blank"}
+:::
+:::
+
+:::
+
+[Ver todos los proyectos →](proyectos.qmd){.view-all-link}
+
+:::

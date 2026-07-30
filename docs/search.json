@@ -1,0 +1,65 @@
+[
+  {
+    "objectID": "proyectos.html",
+    "href": "proyectos.html",
+    "title": "Proyectos",
+    "section": "",
+    "text": "Proyectos\n\n\nTodos\n\n\nBayesiana\n\n\nSupervivencia\n\n\nMachine Learning\n\n\n\n\nIncertidumbre visible\nEstimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.\n\nR Shiny Bayesiana\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\n¿Cuánto tiempo hasta el evento?\nDashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nML Predictor\nComparación de modelos de clasificación (random forest, SVM) para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.\n\nR Shiny Machine Learning\n\n\n2026\n\n\nAbrir app ↗ Código"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Estadística y machine learning",
+    "section": "",
+    "text": "Paulina Rosas\nSupervivencia · Bayesiana · Machine learning · Simulación\n\nVer proyectos → Contacto"
+  },
+  {
+    "objectID": "index.html#proyectos",
+    "href": "index.html#proyectos",
+    "title": "Estadística y machine learning",
+    "section": "Proyectos",
+    "text": "Proyectos\n\n\nIncertidumbre visible\nEstimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.\n\nR Shiny Bayesiana\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\n¿Cuánto tiempo hasta el evento?\nDashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nML Predictor\nComparación de modelos de clasificación (random forest, SVM) para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.\n\nR Shiny Machine Learning\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nVer todos los proyectos →"
+  },
+  {
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "Blog",
+    "section": "",
+    "text": "Próximamente."
+  },
+  {
+    "objectID": "contacto.html",
+    "href": "contacto.html",
+    "title": "Contacto",
+    "section": "",
+    "text": "Contacto\nPara dudas, colaboraciones, o comentarios sobre cualquiera de estos proyectos.\nEscribir correo →"
+  },
+  {
+    "objectID": "proyectos/incertidumbre-visible.html",
+    "href": "proyectos/incertidumbre-visible.html",
+    "title": "Incertidumbre visible",
+    "section": "",
+    "text": "← Volver a proyectos\n\n\n\nBayesiana · 2026\n\n\nAbrir app ↗ Ver código ↗\n\n\n\n¿Qué tan confiable es la tasa de un hospital chico comparada con uno grande? Un hospital con 25 pacientes y una tasa de reingreso alta puede simplemente estar teniendo mala suerte estadística, no un problema real de calidad.\n\n\n\nEstimación bayesiana empírica (Empirical Bayes Beta-Binomial, por método de momentos) con partial pooling: los sitios con pocos pacientes se ajustan hacia el promedio general en vez de confiar ciegamente en su propia tasa cruda.\nLos datos son reales, tomados del dataset público de CMS/Medicare “Readmissions and Deaths - Hospital”, indicador de reingreso por insuficiencia cardíaca a 30 días, en hospitales de Texas.\n\n\n\n\nR Shiny bslib ggplot2 dplyr"
+  },
+  {
+    "objectID": "proyectos/incertidumbre-visible.html#el-problema",
+    "href": "proyectos/incertidumbre-visible.html#el-problema",
+    "title": "Incertidumbre visible",
+    "section": "",
+    "text": "¿Qué tan confiable es la tasa de un hospital chico comparada con uno grande? Un hospital con 25 pacientes y una tasa de reingreso alta puede simplemente estar teniendo mala suerte estadística, no un problema real de calidad."
+  },
+  {
+    "objectID": "proyectos/incertidumbre-visible.html#método",
+    "href": "proyectos/incertidumbre-visible.html#método",
+    "title": "Incertidumbre visible",
+    "section": "",
+    "text": "Estimación bayesiana empírica (Empirical Bayes Beta-Binomial, por método de momentos) con partial pooling: los sitios con pocos pacientes se ajustan hacia el promedio general en vez de confiar ciegamente en su propia tasa cruda.\nLos datos son reales, tomados del dataset público de CMS/Medicare “Readmissions and Deaths - Hospital”, indicador de reingreso por insuficiencia cardíaca a 30 días, en hospitales de Texas."
+  },
+  {
+    "objectID": "proyectos/incertidumbre-visible.html#herramientas",
+    "href": "proyectos/incertidumbre-visible.html#herramientas",
+    "title": "Incertidumbre visible",
+    "section": "",
+    "text": "R Shiny bslib ggplot2 dplyr"
+  }
+]

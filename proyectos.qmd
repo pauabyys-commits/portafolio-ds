@@ -1,0 +1,77 @@
+---
+pagetitle: "Proyectos"
+---
+
+::: {.projects-page}
+
+# Proyectos
+
+::: {.filter-bar}
+<button class="filter-btn active" data-filter="all">Todos</button>
+<button class="filter-btn" data-filter="bayesiana">Bayesiana</button>
+<button class="filter-btn" data-filter="supervivencia">Supervivencia</button>
+<button class="filter-btn" data-filter="ml">Machine Learning</button>
+:::
+
+::: {.project-grid}
+
+::: {.project-card data-category="bayesiana"}
+#### [Incertidumbre visible](proyectos/incertidumbre-visible.qmd)
+
+Estimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.
+
+::: {.project-tags}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [Bayesiana]{.tag .tag-bayes}
+:::
+
+::: {.project-meta}
+2026
+:::
+
+::: {.project-actions}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/incertidumbre-visible/){.btn-primary target="_blank"}
+[Código](https://github.com/pauabyys-commits/incertidumbre-visible){.btn-secondary target="_blank"}
+:::
+:::
+
+::: {.project-card data-category="supervivencia"}
+#### ¿Cuánto tiempo hasta el evento?
+
+Dashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.
+
+::: {.project-tags}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [Supervivencia]{.tag .tag-surv}
+:::
+
+::: {.project-meta}
+2026
+:::
+
+::: {.project-actions}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/supervivencia-cox/){.btn-primary target="_blank"}
+[Código](https://github.com/pauabyys-commits/supervivencia-cox){.btn-secondary target="_blank"}
+:::
+:::
+
+::: {.project-card data-category="ml"}
+#### ML Predictor
+
+Comparación de modelos de clasificación (random forest, SVM) para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.
+
+::: {.project-tags}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [Machine Learning]{.tag .tag-ml}
+:::
+
+::: {.project-meta}
+2026
+:::
+
+::: {.project-actions}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/predictor-ml/){.btn-primary target="_blank"}
+[Código](https://github.com/pauabyys-commits/predictor-ml){.btn-secondary target="_blank"}
+:::
+:::
+
+:::
+
+:::

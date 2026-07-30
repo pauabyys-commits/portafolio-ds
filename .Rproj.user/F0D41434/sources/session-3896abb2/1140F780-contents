@@ -1,0 +1,302 @@
+# "Incertidumbre visible" — ¿qué % de pacientes responde al tratamiento?
+# Estimación bayesiana de tasas de respuesta en varios hospitales,
+# con "partial pooling" (shrinkage): los sitios con pocos pacientes se
+# jalan hacia el promedio general.
+#
+# Método: Empirical Bayes Beta-Binomial (moments)
+
+library(shiny)
+library(bslib)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(scales)
+
+options(shiny.maxRequestSize = 200 * 1024^2)
+
+# Datos de ejemplo: tomados del dataset CMS "Readmissions and Deaths - Hospital" (Medicare / CMS, EE.UU.)
+# Indicador: Rate of readmission for heart failure (HF) a 30 días.
+# 12 hospitales de Texas
+
+datos_ilustrativos <- data.frame(
+  sitio = c("Goodall Witcher Hospital", "Seymour Hospital", "Walnut Hill Medical Center",
+            "St Marks Medical Center", "Harris Health System", "Odessa Regional Medical Center",
+            "TX Health Heart & Vascular Arlington", "Providence Memorial Hospital",
+            "Mission Regional Medical Center", "Shannon Medical Center",
+            "Memorial Hermann Memorial City", "Methodist Hospital"),
+  pacientes = c(25, 37, 65, 102, 128, 172, 212, 280, 360, 474, 711, 2312),
+  respondieron = round(c(25, 37, 65, 102, 128, 172, 212, 280, 360, 474, 711, 2312) *
+                       c(21.8, 22.0, 22.6, 21.6, 22.4, 19.8, 21.0, 19.8, 23.1, 18.2, 20.7, 21.5) / 100),
+  stringsAsFactors = FALSE
+)
+
+# Tema 
+
+tema <- bs_theme(
+  version = 5,
+  bg = "#14121F",
+  fg = "#F0ECE4",
+  primary = "#9C8FE8",
+  secondary = "#E8A24E",
+  success = "#6FE7C4",
+  base_font = font_google("Inter"),
+  heading_font = font_google("Newsreader", ital = 1),
+  code_font = font_google("Space Mono"),
+  "font-size-base" = "0.95rem"
+) %>%
+  bs_add_rules("
+    .navbar, .navbar-brand, h1, h2, h3 { font-family: 'Newsreader', serif; font-style: italic; font-weight: 500; }
+    body { background: radial-gradient(circle at 50% 0%, #201C33 0%, #14121F 60%); }
+    .card { background: #1E1B2E; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: none; }
+    .card-header { background: transparent; font-family: 'Space Mono', monospace;
+                   font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+                   color: #A79FC0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .value-box-title { font-family: 'Space Mono', monospace !important; font-size: 0.68rem !important;
+                        letter-spacing: 0.08em; text-transform: uppercase; }
+    .value-box-value { font-family: 'Newsreader', serif !important; font-style: italic; font-weight: 500 !important; }
+    .well, .sidebar { background-color: #1E1B2E !important; border-color: rgba(255,255,255,0.08) !important; }
+    hr { border-color: rgba(255,255,255,0.12); }
+    .nota { font-family:'Space Mono',monospace; font-size:0.78rem; color:#A79FC0;
+            background: rgba(156,143,232,0.10); border: 1px solid rgba(156,143,232,0.35);
+            border-radius: 6px; padding: 10px 14px; margin-top: 10px; }
+    table.dataTable { background-color: #1E1B2E !important; color: #F0ECE4 !important; }
+    table.dataTable thead th { color: #A79FC0 !important; }
+  ")
+
+# UI 
+
+ui <- page_sidebar(
+  title = "Incertidumbre visible",
+  theme = tema,
+
+  sidebar = sidebar(
+    width = 340,
+    title = "Datos",
+
+    markdown("¿Qué tan confiable es la tasa de un hospital chico comparada con uno grande? Sube el CSV de **Readmissions and Deaths - Hospital** (CMS/Medicare), o usa el ejemplo real ya cargado (12 hospitales de Texas)."),
+
+    fileInput("archivo_cms", "Sube el CSV de CMS", accept = ".csv"),
+    uiOutput("selector_estado"),
+    uiOutput("selector_indicador"),
+    sliderInput("max_hospitales", "Máximo de hospitales a mostrar", min = 8, max = 60, value = 20, step = 1),
+
+    hr(),
+    markdown("**¿Por qué 'shrinkage'?** Un hospital con 25 pacientes y una tasa cruda alta puede solo estar teniendo mala suerte estadística, no un problema real de calidad. El modelo lo sabe, y jala esa estimación hacia el promedio general, proporcional a qué tan poca información tiene ese hospital.")
+  ),
+
+  layout_columns(
+    fill = FALSE,
+    value_box(
+      title = "Tasa general estimada",
+      value = textOutput("tasa_general", inline = TRUE),
+      showcase = bsicons::bs_icon("clipboard2-pulse"),
+      theme = "success"
+    ),
+    value_box(
+      title = "Hospitales incluidos",
+      value = textOutput("n_sitios", inline = TRUE),
+      showcase = bsicons::bs_icon("hospital"),
+      theme = "primary"
+    ),
+    value_box(
+      title = "Variabilidad entre hospitales",
+      value = textOutput("variabilidad", inline = TRUE),
+      showcase = bsicons::bs_icon("bar-chart-steps"),
+      theme = "secondary"
+    )
+  ),
+
+  navset_card_tab(
+    full_screen = TRUE,
+    title = "Resultados",
+    nav_panel(
+      "Tasa cruda vs. estimación bayesiana",
+      div(class = "nota",
+          "Punto hueco = tasa cruda observada en ese hospital. Punto lleno = estimación bayesiana, jalada hacia el promedio general — nota cómo los hospitales con menos pacientes (líneas más largas) se mueven más."),
+      div(style = "height:600px; overflow-y:auto;",
+          plotOutput("shrink_plot"))
+    ),
+    nav_panel(
+      "Distribución poblacional estimada",
+      div(class = "nota",
+          "Esta es la distribución de creencia sobre la tasa 'típica' de un hospital nuevo, todavía no observado — estimada a partir de la variación entre los hospitales que sí tienes."),
+      plotOutput("poblacional_plot", height = "460px")
+    )
+  )
+)
+
+# Server
+
+server <- function(input, output, session) {
+
+  # Cargar el CSV
+
+  datos_crudos <- reactive({
+    if (is.null(input$archivo_cms)) {
+      return(NULL)   # usamos datos_ilustrativos directamente más abajo
+    }
+    df <- tryCatch(read.csv(input$archivo_cms$datapath, stringsAsFactors = FALSE),
+                    error = function(e) NULL)
+    validate(need(!is.null(df) && all(c("Hospital.Name", "State", "Measure.Name",
+                                          "Denominator", "Score") %in% names(df)),
+                   "El CSV no tiene las columnas esperadas del dataset CMS (Hospital Name, State, Measure Name, Denominator, Score)."))
+    df
+  })
+
+  output$selector_estado <- renderUI({
+    df <- datos_crudos()
+    req(df)
+    selectInput("estado_cms", "Estado", choices = sort(unique(df$State)), selected = "TX")
+  })
+
+  output$selector_indicador <- renderUI({
+    df <- datos_crudos()
+    req(df)
+    selectInput("indicador_cms", "Indicador", choices = sort(unique(df$Measure.Name)))
+  })
+
+  # Construir la tabla (hospital, pacientes, eventos) 
+
+  datos_validos <- reactive({
+    df_crudo <- datos_crudos()
+
+    if (is.null(df_crudo)) {
+      df <- datos_ilustrativos
+    } else {
+      req(input$estado_cms, input$indicador_cms)
+      df <- df_crudo %>%
+        filter(State == input$estado_cms, Measure.Name == input$indicador_cms) %>%
+        mutate(
+          pacientes = suppressWarnings(as.numeric(Denominator)),
+          score = suppressWarnings(as.numeric(Score))
+        ) %>%
+        filter(!is.na(pacientes), !is.na(score), pacientes > 0) %>%
+        transmute(
+          sitio = Hospital.Name,
+          pacientes,
+          respondieron = round(score / 100 * pacientes)
+        ) %>%
+        arrange(pacientes)
+
+      n_disp <- nrow(df)
+      if (n_disp > input$max_hospitales) {
+        idx <- round(seq(1, n_disp, length.out = input$max_hospitales))
+        df <- df[idx, ]
+      }
+    }
+
+    validate(need(nrow(df) >= 3, "Muy pocos hospitales con datos válidos para este estado/indicador — prueba otra combinación."))
+    df
+  })
+
+  # Estimación Empirical Bayes: hiperparámetros del Beta poblacional
+
+  hiperparametros <- reactive({
+    df <- datos_validos()
+    p_hat <- df$respondieron / df$pacientes
+
+    m <- mean(p_hat)
+    v <- var(p_hat)
+
+    # Método de momentos para Beta(a,b)
+    if (is.na(v) || v <= 0 || v >= m * (1 - m)) {
+      a <- 1; b <- 1
+    } else {
+      comun <- m * (1 - m) / v - 1
+      a <- max(m * comun, 0.1)
+      b <- max((1 - m) * comun, 0.1)
+    }
+    list(a = a, b = b)
+  })
+
+  # Posterior por sitio
+
+  posteriores <- reactive({
+    df <- datos_validos()
+    hp <- hiperparametros()
+
+    df %>%
+      mutate(
+        tasa_cruda = respondieron / pacientes,
+        a_post = hp$a + respondieron,
+        b_post = hp$b + pacientes - respondieron,
+        tasa_bayes = a_post / (a_post + b_post),
+        ic_bajo = qbeta(0.025, a_post, b_post),
+        ic_alto = qbeta(0.975, a_post, b_post)
+      ) %>%
+      arrange(pacientes)
+  })
+
+  # Value boxes
+
+  output$tasa_general <- renderText({
+    hp <- hiperparametros()
+    percent(hp$a / (hp$a + hp$b), accuracy = 0.1)
+  })
+
+  output$n_sitios <- renderText({
+    nrow(datos_validos())
+  })
+
+  output$variabilidad <- renderText({
+    df <- datos_validos()
+    p_hat <- df$respondieron / df$pacientes
+    percent(sd(p_hat), accuracy = 0.1)
+  })
+
+  # Gráfica : shrinkage 
+
+  output$shrink_plot <- renderPlot({
+    df <- posteriores()
+    df$sitio_wrap <- vapply(df$sitio, function(s) paste(strwrap(s, width = 28), collapse = "\n"), character(1))
+    df$sitio_wrap <- factor(df$sitio_wrap, levels = unique(df$sitio_wrap))   # respeta el orden por tamaño
+
+    ggplot(df, aes(y = sitio_wrap)) +
+      geom_vline(xintercept = hiperparametros()$a / sum(unlist(hiperparametros())),
+                 linetype = "dashed", color = "#6FE7C4", alpha = 0.6) +
+      geom_segment(aes(x = tasa_cruda, xend = tasa_bayes, yend = sitio_wrap),
+                   color = "#4C4870", linewidth = 0.8) +
+      geom_errorbarh(aes(xmin = ic_bajo, xmax = ic_alto), color = "#9C8FE8", height = 0.15, alpha = 0.5) +
+      geom_point(aes(x = tasa_cruda), shape = 21, size = 3.5, color = "#E8A24E", fill = "#1E1B2E", stroke = 1.4) +
+      geom_point(aes(x = tasa_bayes), shape = 21, size = 3.5, color = "#9C8FE8", fill = "#9C8FE8") +
+      scale_x_continuous(labels = percent_format(accuracy = 1)) +
+      labs(x = "Tasa observada", y = NULL) +
+      theme_minimal(base_size = 13, base_family = "Inter") +
+      theme(
+        plot.background = element_rect(fill = "#1E1B2E", color = NA),
+        panel.background = element_rect(fill = "#1E1B2E", color = NA),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_line(color = "#2C2842"),
+        text = element_text(color = "#F0ECE4"),
+        axis.text = element_text(color = "#A79FC0"),
+        axis.text.y = element_text(size = 9, lineheight = 0.85),
+        plot.margin = margin(10, 20, 10, 10)
+      )
+  }, bg = "#1E1B2E", height = function() max(500, 40 * nrow(posteriores())))
+
+  # Gráfica : distribución poblacional (hyper-Beta)
+
+  output$poblacional_plot <- renderPlot({
+    hp <- hiperparametros()
+    x_seq <- seq(0, 1, length.out = 600)
+    df <- data.frame(x = x_seq, densidad = dbeta(x_seq, hp$a, hp$b))
+
+    ggplot(df, aes(x, densidad)) +
+      geom_area(fill = "#9C8FE8", alpha = 0.15) +
+      geom_line(color = "#9C8FE8", linewidth = 1.2) +
+      scale_x_continuous(labels = percent_format(accuracy = 1)) +
+      labs(x = "Tasa de respuesta esperada en un sitio nuevo", y = "Densidad") +
+      theme_minimal(base_size = 15, base_family = "Inter") +
+      theme(
+        plot.background = element_rect(fill = "#1E1B2E", color = NA),
+        panel.background = element_rect(fill = "#1E1B2E", color = NA),
+        panel.grid.major = element_line(color = "#2C2842"),
+        panel.grid.minor = element_blank(),
+        text = element_text(color = "#F0ECE4"),
+        axis.text = element_text(color = "#A79FC0")
+      )
+  }, bg = "#1E1B2E")
+}
+
+shinyApp(ui, server)

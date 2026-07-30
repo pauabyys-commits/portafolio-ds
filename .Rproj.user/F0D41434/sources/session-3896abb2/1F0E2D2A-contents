@@ -1,0 +1,215 @@
+# "¿Cuánto tiempo hasta el evento?" Dashboard interactivo de supervivencia Kaplan-Meier + Cox Proportional Hazards
+#
+# Dataset: survival::lung (datos públicos, incluidos en el paquete `survival`)
+#   Estudio de supervivencia en pacientes con cáncer de pulmón avanzado
+
+library(shiny)
+library(bslib)
+library(survival)
+library(survminer)
+library(dplyr)
+library(broom)
+library(gt)
+
+# Preparar datos
+
+data(lung, package = "survival")
+
+lung_clean <- lung %>%
+  mutate(
+    status_bin = status - 1,
+    sexo = factor(sex, levels = c(1, 2), labels = c("Hombre", "Mujer")),
+    ecog = case_when(
+      ph.ecog == 0 ~ "0 · activo",
+      ph.ecog == 1 ~ "1 · síntomas leves",
+      ph.ecog %in% c(2, 3) ~ "2+ · limitación importante",
+      TRUE ~ NA_character_
+    ),
+    ecog = factor(ecog, levels = c("0 · activo", "1 · síntomas leves", "2+ · limitación importante")),
+    grupo_edad = case_when(
+      age < 60 ~ "< 60 años",
+      age >= 60 & age < 70 ~ "60–69 años",
+      age >= 70 ~ "70+ años"
+    )
+  ) %>%
+  filter(!is.na(status_bin), !is.na(sexo), !is.na(ecog), !is.na(grupo_edad))
+
+n_pacientes <- nrow(lung_clean)
+n_eventos <- sum(lung_clean$status_bin)
+mediana_global <- summary(survfit(Surv(time, status_bin) ~ 1, data = lung_clean))$table["median"]
+
+# Tema 
+
+tema <- bs_theme(
+  version = 5,
+  bg = "#F4F6F5",
+  fg = "#16262B",
+  primary = "#3F7368",
+  secondary = "#C1443D",
+  success = "#3F7368",
+  warning = "#D9A93F",
+  base_font = font_google("IBM Plex Sans"),
+  heading_font = font_google("Fraunces"),
+  code_font = font_google("IBM Plex Mono"),
+  "font-size-base" = "0.95rem"
+) %>%
+  bs_add_rules("
+    .navbar, .navbar-brand { font-family: 'Fraunces', serif; font-weight: 500; }
+    .card { border: 1px solid #CBD8D5; box-shadow: none; border-radius: 6px; }
+    .card-header { background: #FFFFFF; font-family: 'IBM Plex Mono', monospace;
+                   font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+                   color: #4C6068; border-bottom: 1px solid #CBD8D5; }
+    .value-box-title { font-family: 'IBM Plex Mono', monospace !important; font-size: 0.7rem !important;
+                        letter-spacing: 0.08em; text-transform: uppercase; }
+    .value-box-value { font-family: 'Fraunces', serif !important; font-weight: 500 !important; }
+    body { background-image: linear-gradient(#CBD8D5 1px, transparent 1px),
+                              linear-gradient(90deg, #CBD8D5 1px, transparent 1px);
+           background-size: 42px 42px; background-attachment: fixed; }
+    .well, .card, .navbar { background-color: #FFFFFF; }
+    hr { border-color: #CBD8D5; }
+  ")
+
+# ---- UI ----
+
+ui <- page_sidebar(
+  title = "¿Cuánto tiempo hasta el evento?",
+  theme = tema,
+
+  sidebar = sidebar(
+    width = 300,
+    title = "Controles",
+
+    markdown(
+      "Datos: `survival::lung` — pacientes con cáncer de pulmón avanzado. El *evento* es la muerte del paciente; los casos sin evento observado están **censurados**."
+    ),
+
+    selectInput(
+      "grupo_var",
+      "Comparar curvas por:",
+      choices = c("Sexo" = "sexo",
+                  "Estado funcional (ECOG)" = "ecog",
+                  "Grupo de edad" = "grupo_edad"),
+      selected = "sexo"
+    ),
+
+    checkboxInput("mostrar_riesgo", "Tabla de pacientes en riesgo", value = TRUE),
+    checkboxInput("mostrar_ic", "Bandas de confianza (95%)", value = TRUE),
+
+    hr(),
+
+    markdown(
+      "El modelo de Cox estima el efecto de cada variable **de forma simultánea**, controlando por las demás — a diferencia de Kaplan-Meier, que compara un grupo a la vez."
+    )
+  ),
+
+  layout_columns(
+    fill = FALSE,
+    value_box(
+      title = "Pacientes",
+      value = n_pacientes,
+      showcase = bsicons::bs_icon("people"),
+      theme = "primary"
+    ),
+    value_box(
+      title = "Eventos observados",
+      value = n_eventos,
+      showcase = bsicons::bs_icon("activity"),
+      theme = "secondary"
+    ),
+    value_box(
+      title = "Mediana de supervivencia",
+      value = paste(round(mediana_global), "días"),
+      showcase = bsicons::bs_icon("hourglass-split"),
+      theme = "warning"
+    )
+  ),
+
+  navset_card_tab(
+    full_screen = TRUE,
+    title = "Resultados",
+    nav_panel(
+      "Curvas de Kaplan-Meier",
+      plotOutput("km_plot", height = "560px")
+    ),
+    nav_panel(
+      "Modelo de Cox",
+      br(),
+      gt_output("cox_table"),
+      div(
+        style = "font-family:'IBM Plex Mono',monospace; font-size:0.75rem; color:#4C6068; margin-top:14px;",
+        "HR > 1 = mayor riesgo respecto a la categoría de referencia · HR < 1 = menor riesgo · IC que cruza 1 no es significativo al 95%"
+      )
+    )
+  )
+)
+
+# ---- Server ----
+
+server <- function(input, output, session) {
+
+  fit_km <- reactive({
+    formula_grupo <- reformulate(input$grupo_var, response = "Surv(time, status_bin)")
+    surv_fit(formula_grupo, data = lung_clean)
+  })
+
+  output$km_plot <- renderPlot({
+    ggsurvplot(
+      fit_km(),
+      data = lung_clean,
+      conf.int = input$mostrar_ic,
+      risk.table = input$mostrar_riesgo,
+      risk.table.y.text = FALSE,      
+      risk.table.y.text.col = TRUE, 
+      risk.table.height = 0.28,
+      risk.table.fontsize = 4,
+      tables.theme = theme_minimal(base_size = 12, base_family = "IBM Plex Sans"),
+      pval = TRUE,
+      xlab = "Días desde el diagnóstico",
+      ylab = "Probabilidad de supervivencia",
+      legend.title = "",
+      legend = "bottom",
+      font.family = "IBM Plex Sans",
+      ggtheme = theme_minimal(base_size = 14, base_family = "IBM Plex Sans") +
+        theme(
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_line(color = "#E4EAE8"),
+          plot.background = element_rect(fill = "white", color = NA),
+          legend.position = "bottom"
+        ),
+      palette = c("#3F7368", "#C1443D", "#D9A93F", "#4C6068")
+    )
+  })
+
+  cox_fit <- reactive({
+    coxph(Surv(time, status_bin) ~ sexo + ecog + age, data = lung_clean)
+  })
+
+  output$cox_table <- render_gt({
+    tidy(cox_fit(), exponentiate = TRUE, conf.int = TRUE) %>%
+      transmute(
+        Variable = term,
+        `Hazard Ratio` = round(estimate, 2),
+        `IC 95% inferior` = round(conf.low, 2),
+        `IC 95% superior` = round(conf.high, 2),
+        `p-valor` = signif(p.value, 3)
+      ) %>%
+      gt() %>%
+      opt_table_font(font = c("IBM Plex Sans", "sans-serif")) %>%
+      tab_style(
+        style = cell_text(color = "#C1443D", weight = "bold"),
+        locations = cells_body(columns = `p-valor`, rows = `p-valor` < 0.05)
+      ) %>%
+      tab_style(
+        style = cell_text(weight = "bold"),
+        locations = cells_column_labels()
+      ) %>%
+      tab_options(
+        table.border.top.color = "#CBD8D5",
+        table.border.bottom.color = "#CBD8D5",
+        column_labels.border.bottom.color = "#16262B",
+        table.font.size = "14px"
+      )
+  })
+}
+
+shinyApp(ui, server)

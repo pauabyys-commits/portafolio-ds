@@ -1,0 +1,666 @@
+/*-- scss:defaults --*/
+
+// Sobreescribimos el color primario de Bootstrap para que
+// botones, links y navbar activo usen nuestro indigo.
+$primary: #5B5FEF;
+
+// Bootstrap usa esta variable para el radio de esquinas de
+// botones, cards, inputs, etc. La ajustamos a nuestro estilo.
+$border-radius: 8px;
+
+// Le decimos a Bootstrap que use Inter como fuente base del sitio.
+// (Cargamos la fuente real más abajo, en scss:rules)
+$font-family-sans-serif: "Inter", sans-serif;
+
+/*-- scss:rules --*/
+
+// 1. IMPORTAMOS LAS TIPOGRAFIAS DESDE GOOGLE FONTS
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+
+// 2. NUESTRO SISTEMA DE VARIABLES CSS (para ambos modos)
+// Estas son las que vamos a poder cambiar con JS en el toggle.
+:root {
+  // Modo claro (valores por defecto)
+  --color-bg: #F7F5F1;
+  --color-bg-elevated: #FFFFFF;
+  --color-text: #2B2620;
+  --color-text-muted: #8A8378;
+  --color-border: #EAE5DC;
+  --color-accent: #5B5FEF;
+
+
+  // Tags de categoria (pastel)
+  --tag-r-bg: #FBE7EE;      --tag-r-text: #9C3E5F;
+  --tag-shiny-bg: #E5EDFB;  --tag-shiny-text: #3E5C9C;
+  --tag-surv-bg: #ECE8FB;   --tag-surv-text: #5B4E9C;
+  --tag-ml-bg: #F5F0D8;     --tag-ml-text: #8A7A2A;
+  --tag-rf-bg: #DDF0E5;     --tag-rf-text: #2A7A54;
+  --tag-bayes-bg: #F0E8D8;  --tag-bayes-text: #8A6D2A;
+}
+
+// 3. MODO OSCURO
+// Este selector se activa cuando le agreguemos el atributo
+// data-theme="dark" al <html> — eso lo hará el JS del toggle
+// en el paso de animaciones. Por ahora solo dejamos la regla lista.
+[data-theme="dark"] {
+  --color-bg: #17161C;
+  --color-bg-elevated: #1F1D24;
+  --color-text: #F0EEF2;
+  --color-text-muted: #A9A5B0;
+  --color-border: #2D2A33;
+  --color-accent: #6C70F0;
+
+  --tag-r-bg: #3A2836;      --tag-r-text: #F0A8C2;
+  --tag-shiny-bg: #25304A;  --tag-shiny-text: #9CBBF0;
+  --tag-surv-bg: #2E2A48;   --tag-surv-text: #BCB0F0;
+  --tag-ml-bg: #3A3420;     --tag-ml-text: #E0C868;
+  --tag-rf-bg: #1C3A2A;     --tag-rf-text: #7DD4A8;
+  --tag-bayes-bg: #3A3020;  --tag-bayes-text: #E0C070;
+}
+
+// 4. APLICAMOS LAS VARIABLES A ELEMENTOS BASE
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+// 5. TIPOGRAFIA - asignamos Sora a los titulos
+h1, h2, h3, h4, h5, h6,
+.navbar-brand {
+  font-family: "Sora", sans-serif;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+// 6. NAVBAR - la hacemos transparente/integrada al fondo,
+// en vez del azul/gris por defecto de Bootstrap
+.navbar {
+  background-color: var(--color-bg) !important;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.navbar .nav-link {
+  color: var(--color-text) !important;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+}
+
+.navbar .nav-link:hover {
+  color: var(--color-accent) !important;
+}
+
+// El boton de busqueda (lupa)
+.navbar .quarto-search-icon,
+#quarto-search svg {
+  color: var(--color-text) !important;
+  opacity: 0.7;
+}
+
+// El boton de hamburguesa (menu movil)
+.navbar-toggler {
+  border-color: var(--color-border) !important;
+}
+
+.navbar-toggler-icon {
+  filter: invert(0.3);
+}
+
+// 7. CODIGO / MONOSPACE
+code, pre {
+  font-family: "JetBrains Mono", monospace;
+}
+
+
+// ============================================
+// HERO (pagina de inicio)
+// ============================================
+
+.hero {
+  position: relative;
+  padding: 4rem 1.5rem;
+  max-width: 700px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -80px;
+    right: -60px;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91, 95, 239, 0.18) 0%, rgba(91, 95, 239, 0) 70%);
+    filter: blur(30px);
+    z-index: -1;
+  }
+
+&::after {
+    content: "";
+    position: absolute;
+    top: 270px;
+    left: 45%;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(247, 196, 214, 1) 0%, rgba(247, 196, 214, 0) 70%);
+    filter: blur(10px);
+    z-index: -1;
+  }
+
+}
+
+.hero-line {
+  position: absolute;
+  top: 20px;
+  right: -50px;
+  width: 40%;
+  height: auto;
+  color: var(--color-accent);
+  opacity: 0.25;
+  z-index: -1;
+}
+
+.hero-curve {
+  position: absolute;
+  top: 340px;
+  left: 320px;
+  width: 34%;
+  height: auto;
+  color: #C9607F;
+  opacity: 0.4;
+  z-index: -1;
+}
+
+// El titulo principal del hero
+.hero h1 {
+  font-size: 2.4rem;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+}
+
+// La palabra "Estadistica" resaltada en indigo
+.hero .accent {
+  color: var(--color-accent);
+}
+
+// El nombre "Paulina Rosas" (viene como <strong>)
+.hero p:first-of-type strong {
+  font-family: "Sora", sans-serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  display: block;
+  margin-bottom: 1rem;
+}
+
+// La linea de categorias (Supervivencia · Bayesiana · ...)
+.hero > p:nth-of-type(2) {
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+}
+
+// Contenedor de los botones
+.hero-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+// Boton primario (relleno, indigo)
+.btn-primary {
+  background-color: var(--color-accent);
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--border-radius, 8px);
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: inline-block;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+// Boton secundario (solo borde)
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-text) !important;
+  text-decoration: none !important;
+  padding: 0.65rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius, 8px);
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: inline-block;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-accent);
+  }
+}
+
+// ============================================
+// ANIMACIONES DEL HERO
+// ============================================
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero h1,
+.hero p:first-of-type,
+.hero > p:nth-of-type(2),
+.hero-buttons {
+  opacity: 0;
+  animation: fadeInUp 1s ease-out forwards;
+}
+
+.hero h1 {
+  animation-delay: 0.1s;
+}
+
+.hero p:first-of-type {
+  animation-delay: 0.4s;
+}
+
+.hero > p:nth-of-type(2) {
+  animation-delay: 0.7s;
+}
+
+.hero-buttons {
+  animation-delay: 1s;
+}
+
+
+// ============================================
+// SECCION DE PROYECTOS (Home)
+// ============================================
+
+.featured-section {
+  max-width: 1100px;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.featured-section h2 {
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+
+// Grid responsivo: tantas columnas de min. 280px como quepan
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.6s ease;
+
+  // Estado inicial: oculta y un poco mas abajo
+  opacity: 0;
+  transform: translateY(20px);
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  // Cuando el JS le agrega esta clase, se revela
+  &.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.project-card h4 {
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.project-card > p {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.85rem;
+}
+
+// Tags: estilo comun
+.tag {
+  display: inline-block;
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-right: 4px;
+  margin-bottom: 4px;
+}
+
+// Cada tecnologia con su color, usando las variables que ya definimos
+.tag-r       { background: var(--tag-r-bg);      color: var(--tag-r-text); }
+.tag-shiny   { background: var(--tag-shiny-bg);  color: var(--tag-shiny-text); }
+.tag-surv    { background: var(--tag-surv-bg);   color: var(--tag-surv-text); }
+.tag-ml      { background: var(--tag-ml-bg);     color: var(--tag-ml-text); }
+.tag-rf      { background: var(--tag-rf-bg);     color: var(--tag-rf-text); }
+.tag-bayes   { background: var(--tag-bayes-bg);  color: var(--tag-bayes-text); }
+
+.project-meta {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin: 0.75rem 0;
+}
+
+.project-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+// Los botones dentro de las tarjetas son mas chicos que los del Hero
+.project-actions .btn-primary,
+.project-actions .btn-secondary {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.78rem;
+}
+
+.view-all-link {
+  color: var(--color-accent) !important;
+  text-decoration: none !important;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.view-all-link:hover {
+  text-decoration: underline !important;
+}
+
+
+// ============================================
+// PAGINA DE PROYECTOS
+// ============================================
+
+.projects-page {
+  max-width: 1100px;
+  padding: 3rem 1.5rem 4rem;
+}
+
+.projects-page h1 {
+  margin-bottom: 1.5rem;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.filter-btn {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background-color: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  padding: 0.45rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-accent);
+    color: var(--color-text);
+  }
+
+  &.active {
+    background-color: var(--color-accent);
+    color: #FFFFFF;
+    border-color: var(--color-accent);
+  }
+}
+
+// ============================================
+// PAGINA DE DETALLE DE PROYECTO
+// ============================================
+
+.project-detail {
+  max-width: 720px;
+  padding: 3rem 1.5rem 4rem;
+}
+
+.back-link {
+  display: inline-block;
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  color: var(--color-text-muted) !important;
+  text-decoration: none !important;
+  margin-bottom: 1.5rem;
+
+  &:hover {
+    color: var(--color-accent) !important;
+  }
+}
+
+.project-detail h1 {
+  margin-bottom: 0.5rem;
+}
+
+.project-detail-meta {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.project-detail-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 2.5rem;
+}
+
+.project-detail h2 {
+  font-size: 1.2rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.project-detail p {
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+.project-card h4 a {
+  color: var(--color-text) !important;
+  text-decoration: none !important;
+
+  &:hover {
+    color: var(--color-accent) !important;
+  }
+}
+
+
+// ============================================
+// FOOTER
+// ============================================
+
+.site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 0;
+}
+
+.footer-icons {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.footer-icons a {
+  color: var(--color-text-muted);
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--color-accent);
+  }
+}
+
+.footer-copy {
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+// El contenedor que Quarto genera automaticamente para el footer
+#quarto-footer {
+  background-color: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+}
+
+
+// ============================================
+// PAGINA DE CONTACTO
+// ============================================
+
+.contact-page {
+  max-width: 600px;
+  padding: 4rem 1.5rem;
+}
+
+.contact-page p {
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  max-width: 420px;
+}
+
+.contact-icons {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+}
+
+.contact-icons a {
+  color: var(--color-text-muted);
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--color-accent);
+  }
+}
+
+
+// ============================================
+// RESPONSIVE - MOBILE
+// ============================================
+
+@media (max-width: 768px) {
+  // Blob indigo: mas chico y mas arriba
+  .hero::before {
+    width: 220px;
+    height: 220px;
+    top: -60px;
+    right: -60px;
+  }
+
+  // Blob rosa: mas chico, reposicionado para no chocar con el texto
+  .hero::after {
+    width: 160px;
+    height: 160px;
+    top: 480px;
+    left: auto;
+    right: -40px;
+  }
+
+  // La linea de tendencia: mas chica y reposicionada
+  .hero-line {
+    width: 55%;
+    top: -20px;
+    right: -20px;
+  }
+
+  // La curva gaussiana: la ocultamos en movil, ya no hay espacio
+  // limpio para mostrarla sin que estorbe
+  .hero-curve {
+    display: none;
+  }
+}
+
+// ============================================
+// TOGGLE DE TEMA
+// ============================================
+
+#theme-toggle {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text);
+  cursor: pointer;
+  margin-left: 0.75rem;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-accent);
+  }
+}
+
+// Version mas discreta del blob rosa y la curva, solo en modo oscuro
+[data-theme="dark"] {
+  .hero::after {
+    background: radial-gradient(circle, rgba(247, 196, 214, 0.35) 0%, rgba(247, 196, 214, 0) 70%);
+    filter: blur(25px);
+  }
+
+  .hero-curve {
+    opacity: 0.2;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-25px);
+  }
+}
+
+.hero::before {
+  animation: float 4s ease-in-out infinite;
+}
+
+.hero::after {
+  animation: float 10s ease-in-out infinite;
+  animation-delay: -3s;
+}

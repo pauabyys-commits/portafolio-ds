@@ -1,0 +1,17 @@
+{
+  "blog.qmd": {
+    "blog.html": "97972232"
+  },
+  "contacto.qmd": {
+    "contacto.html": "281b5279"
+  },
+  "index.qmd": {
+    "index.html": "28dad3ff"
+  },
+  "proyectos/incertidumbre-visible.qmd": {
+    "incertidumbre-visible.html": "a875a0c3"
+  },
+  "proyectos.qmd": {
+    "proyectos.html": "f61e3f22"
+  }
+}
