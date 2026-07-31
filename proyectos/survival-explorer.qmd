@@ -1,0 +1,38 @@
+---
+pagetitle: "Survival Explorer"
+---
+
+::: {.project-detail}
+
+[← Volver a proyectos](../proyectos.qmd){.back-link}
+
+# Survival Explorer
+
+::: {.project-detail-meta}
+[Supervivencia]{.tag .tag-surv} · 2026
+:::
+
+::: {.project-detail-actions}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/survival-explorer/){.btn-primary target="_blank"}
+[Ver código ↗](https://github.com/pauabyys-commits/survival-explorer){.btn-secondary target="_blank"}
+:::
+
+## El problema
+
+En oncología, predecir el tiempo hasta un evento (recaída o muerte) permite personalizar el seguimiento, estratificar el riesgo de cada paciente, y evaluar objetivamente si un tratamiento prolonga la supervivencia. La pregunta central: ¿qué variables modifican el riesgo de recaída/muerte en pacientes con cáncer de colon en estado B2/C, y cómo se compara el efecto de la quimioterapia adyuvante (Levamisol +/- 5-FU) frente a observación?
+
+## Método
+
+Curvas de **Kaplan-Meier** y modelo de **Cox de riesgos proporcionales**, comparando una versión con efectos lineales contra una con splines restringidos (para capturar relaciones no lineales en variables como edad y número de ganglios afectados), evaluadas por C-index y calibración.
+
+También compara tres enfoques distintos para predecir riesgo a un horizonte de tiempo fijo (regresión logística, Cox, y **Random Forest**) usando curvas ROC y AUC sobre un set de prueba. Incluye una calculadora de riesgo individual: al ingresar el perfil de un paciente (edad, sexo, ganglios afectados, etc.), estima su probabilidad de supervivencia a 1, 3 y 5 años.
+
+Los datos son del dataset público `colon` (paquete `survival`) — un ensayo clínico aleatorizado multicéntrico real de 929 pacientes (Moertel et al., *New England Journal of Medicine*, 1990; *Annals of Internal Medicine*, 1995).
+
+## Herramientas
+
+::: {.project-tags}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [survival]{.tag .tag-r} [rms]{.tag .tag-r} [randomForest]{.tag .tag-rf} [plotly]{.tag .tag-ml}
+:::
+
+:::

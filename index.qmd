@@ -7,14 +7,11 @@ pagetitle: "Home"
 <svg class="hero-line" width="300" height="100" viewBox="0 0 300 100" preserveAspectRatio="none" aria-hidden="true">
   <polyline points="0,80 40,60 80,70 120,30 160,45 200,15 240,35 280,10 300,20" fill="none" stroke="currentColor" stroke-width="2"/>
 </svg>
-
 <svg class="hero-curve" width="200" height="100" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true">
   <path d="M 0,90 C 40,90 55,15 100,15 C 145,15 160,90 200,90" fill="none" stroke="currentColor" stroke-width="2"/>
 </svg>
 
-
 # [Estadística]{.accent} y machine learning
-
 
 **Paulina Rosas**
 
@@ -27,7 +24,6 @@ Supervivencia · Bayesiana · Machine learning · Simulación
 
 :::
 
-
 ::: {.featured-section}
 
 ## Proyectos
@@ -35,12 +31,12 @@ Supervivencia · Bayesiana · Machine learning · Simulación
 ::: {.project-grid}
 
 ::: {.project-card}
-#### [Incertidumbre visible](proyectos/incertidumbre-visible.qmd)
+#### [Survival Explorer](proyectos/survival-explorer.qmd)
 
-Estimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.
+Plataforma de análisis de supervivencia sobre un ensayo clínico de cáncer de colon. Curvas de Kaplan-Meier, Cox PH con splines, comparación contra Random Forest, y calculadora de riesgo individual por paciente.
 
 ::: {.project-tags}
-[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [Bayesiana]{.tag .tag-bayes}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [Supervivencia]{.tag .tag-surv}
 :::
 
 ::: {.project-meta}
@@ -48,8 +44,8 @@ Estimación bayesiana de tasas hospitalarias con shrinkage — los hospitales co
 :::
 
 ::: {.project-actions}
-[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/incertidumbre-visible/){.btn-primary target="_blank"}
-[Código](https://github.com/pauabyys-commits/incertidumbre-visible){.btn-secondary target="_blank"}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/survival-explorer/){.btn-primary target="_blank"}
+[Código](https://github.com/pauabyys-commits/survival-explorer){.btn-secondary target="_blank"}
 :::
 :::
 

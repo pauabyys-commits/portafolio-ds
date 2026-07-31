@@ -72,6 +72,25 @@ Comparación de modelos de clasificación para predicción de diagnóstico, con 
 :::
 :::
 
+::: {.project-card data-category="supervivencia"}
+#### [Survival Explorer](proyectos/survival-explorer.qmd)
+
+Plataforma de análisis de supervivencia sobre un ensayo clínico de cáncer de colon — curvas de Kaplan-Meier, Cox PH con splines, comparación contra Random Forest, y calculadora de riesgo individual por paciente.
+
+::: {.project-tags}
+[R]{.tag .tag-r} [Shiny]{.tag .tag-shiny} [Supervivencia]{.tag .tag-surv}
+:::
+
+::: {.project-meta}
+2026
+:::
+
+::: {.project-actions}
+[Abrir app ↗](https://yzz9kd-pau-rosas.shinyapps.io/survival-explorer/){.btn-primary target="_blank"}
+[Código](https://github.com/pauabyys-commits/survival-explorer){.btn-secondary target="_blank"}
+:::
+:::
+
 :::
 
 :::

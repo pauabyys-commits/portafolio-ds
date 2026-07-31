@@ -4,7 +4,7 @@
     "href": "proyectos.html",
     "title": "Proyectos",
     "section": "",
-    "text": "Proyectos\n\n\nTodos\n\n\nBayesiana\n\n\nSupervivencia\n\n\nMachine Learning\n\n\n\n\nIncertidumbre visible\nEstimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.\n\nR Shiny Bayesiana\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\n¿Cuánto tiempo hasta el evento?\nDashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nML Predictor\nComparación de modelos de clasificación para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.\n\nR Shiny Machine Learning\n\n\n2026\n\n\nAbrir app ↗ Código"
+    "text": "Proyectos\n\n\nTodos\n\n\nBayesiana\n\n\nSupervivencia\n\n\nMachine Learning\n\n\n\n\nIncertidumbre visible\nEstimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.\n\nR Shiny Bayesiana\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\n¿Cuánto tiempo hasta el evento?\nDashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nML Predictor\nComparación de modelos de clasificación para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.\n\nR Shiny Machine Learning\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nSurvival Explorer\nPlataforma de análisis de supervivencia sobre un ensayo clínico de cáncer de colon — curvas de Kaplan-Meier, Cox PH con splines, comparación contra Random Forest, y calculadora de riesgo individual por paciente.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código"
   },
   {
     "objectID": "proyectos/predictor-ml.html",
@@ -46,7 +46,7 @@
     "href": "index.html#proyectos",
     "title": "Estadística y machine learning",
     "section": "Proyectos",
-    "text": "Proyectos\n\n\nIncertidumbre visible\nEstimación bayesiana de tasas hospitalarias con shrinkage — los hospitales con pocos pacientes se ajustan hacia el promedio general en vez de confiar en su tasa cruda. Datos reales de CMS/Medicare.\n\nR Shiny Bayesiana\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\n¿Cuánto tiempo hasta el evento?\nDashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nML Predictor\nComparación de modelos de clasificación para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.\n\nR Shiny Machine Learning\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nVer todos los proyectos →"
+    "text": "Proyectos\n\n\nSurvival Explorer\nPlataforma de análisis de supervivencia sobre un ensayo clínico de cáncer de colon. Curvas de Kaplan-Meier, Cox PH con splines, comparación contra Random Forest, y calculadora de riesgo individual por paciente.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\n¿Cuánto tiempo hasta el evento?\nDashboard de supervivencia con curvas de Kaplan-Meier y modelo de riesgos proporcionales de Cox, sobre datos de pacientes con cáncer de pulmón avanzado.\n\nR Shiny Supervivencia\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nML Predictor\nComparación de modelos de clasificación para predicción de diagnóstico, con curva ROC, importancia de variables y métricas de desempeño por modelo.\n\nR Shiny Machine Learning\n\n\n2026\n\n\nAbrir app ↗ Código\n\n\n\nVer todos los proyectos →"
   },
   {
     "objectID": "blog.html",
@@ -117,5 +117,33 @@
     "title": "¿Cuánto tiempo hasta el evento?",
     "section": "",
     "text": "R Shiny survival survminer gt"
+  },
+  {
+    "objectID": "proyectos/survival-explorer.html",
+    "href": "proyectos/survival-explorer.html",
+    "title": "Survival Explorer",
+    "section": "",
+    "text": "← Volver a proyectos\n\n\n\nSupervivencia · 2026\n\n\nAbrir app ↗ Ver código ↗\n\n\n\nEn oncología, predecir el tiempo hasta un evento (recaída o muerte) permite personalizar el seguimiento, estratificar el riesgo de cada paciente, y evaluar objetivamente si un tratamiento prolonga la supervivencia. La pregunta central: ¿qué variables modifican el riesgo de recaída/muerte en pacientes con cáncer de colon en estadio B2/C, y cómo se compara el efecto de la quimioterapia adyuvante (Levamisol +/- 5-FU) frente a observación?\n\n\n\nCurvas de Kaplan-Meier y modelo de Cox de riesgos proporcionales, comparando una versión con efectos lineales contra una con splines restringidos (para capturar relaciones no lineales en variables como edad y número de ganglios afectados), evaluadas por C-index y calibración.\nTambién compara tres enfoques distintos para predecir riesgo a un horizonte de tiempo fijo (regresión logística, Cox, y Random Forest) usando curvas ROC y AUC sobre un set de prueba. Incluye una calculadora de riesgo individual: al ingresar el perfil de un paciente (edad, sexo, ganglios afectados, etc.), estima su probabilidad de supervivencia a 1, 3 y 5 años.\nLos datos son del dataset público colon (paquete survival) — un ensayo clínico aleatorizado multicéntrico real de 929 pacientes (Moertel et al., New England Journal of Medicine, 1990; Annals of Internal Medicine, 1995).\n\n\n\n\nR Shiny survival rms randomForest plotly"
+  },
+  {
+    "objectID": "proyectos/survival-explorer.html#el-problema",
+    "href": "proyectos/survival-explorer.html#el-problema",
+    "title": "Survival Explorer",
+    "section": "",
+    "text": "En oncología, predecir el tiempo hasta un evento (recaída o muerte) permite personalizar el seguimiento, estratificar el riesgo de cada paciente, y evaluar objetivamente si un tratamiento prolonga la supervivencia. La pregunta central: ¿qué variables modifican el riesgo de recaída/muerte en pacientes con cáncer de colon en estadio B2/C, y cómo se compara el efecto de la quimioterapia adyuvante (Levamisol +/- 5-FU) frente a observación?"
+  },
+  {
+    "objectID": "proyectos/survival-explorer.html#método",
+    "href": "proyectos/survival-explorer.html#método",
+    "title": "Survival Explorer",
+    "section": "",
+    "text": "Curvas de Kaplan-Meier y modelo de Cox de riesgos proporcionales, comparando una versión con efectos lineales contra una con splines restringidos (para capturar relaciones no lineales en variables como edad y número de ganglios afectados), evaluadas por C-index y calibración.\nTambién compara tres enfoques distintos para predecir riesgo a un horizonte de tiempo fijo (regresión logística, Cox, y Random Forest) usando curvas ROC y AUC sobre un set de prueba. Incluye una calculadora de riesgo individual: al ingresar el perfil de un paciente (edad, sexo, ganglios afectados, etc.), estima su probabilidad de supervivencia a 1, 3 y 5 años.\nLos datos son del dataset público colon (paquete survival) — un ensayo clínico aleatorizado multicéntrico real de 929 pacientes (Moertel et al., New England Journal of Medicine, 1990; Annals of Internal Medicine, 1995)."
+  },
+  {
+    "objectID": "proyectos/survival-explorer.html#herramientas",
+    "href": "proyectos/survival-explorer.html#herramientas",
+    "title": "Survival Explorer",
+    "section": "",
+    "text": "R Shiny survival rms randomForest plotly"
   }
 ]
